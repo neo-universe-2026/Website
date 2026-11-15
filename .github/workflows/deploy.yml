@@ -1,0 +1,75 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust with wasm32 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: wasm
+
+      - name: Get wasm-bindgen version from Cargo.lock
+        run: |
+          version=$(grep -A1 '^name = "wasm-bindgen"$' wasm/Cargo.lock | awk '/^version/ {print $3; exit}' | tr -d '"')
+          if [ -z "$version" ]; then
+            echo "could not find wasm-bindgen version in wasm/Cargo.lock" >&2
+            exit 1
+          fi
+          echo "WASM_BINDGEN_VERSION=$version" >> "$GITHUB_ENV"
+          echo "wasm-bindgen $version"
+
+      - name: Install wasm-bindgen-cli
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen-cli@${{ env.WASM_BINDGEN_VERSION }}
+
+      - name: Build sonificator WASM
+        run: |
+          cargo build --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown --release
+          mkdir -p wasm/pkg
+          wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm \
+            --target web --out-dir wasm/pkg --out-name sonificator_wasm
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
