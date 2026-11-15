@@ -1,0 +1,11 @@
+# Ignore files not needed for Nix build
+flake.nix
+flake.lock
+.nixignore
+.envrc
+.git
+.gitignore
+*.md
+videos/
+demos/
+node_modules/
