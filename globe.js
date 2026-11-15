@@ -70,7 +70,7 @@ const $ = (id) => document.getElementById(id);
 /* ---------- topics that orbit the globe ---------- */
 // angle = position on the orbit, chosen to fall between the datasets' longitudes
 const TOPICS = [
-  { id: "how", nav: "How it sounds", title: "How pictures become sound", place: "The plan for turning colour, brightness and movement into music", color: "#f4a340", angle: -107 },
+  { id: "how", nav: "How it sounds", title: "How pictures become sound", place: "How the Sonificator turns colour, brightness and movement into music", color: "#f4a340", angle: -107 },
   { id: "quiz", nav: "Quiz", title: "Listening quiz", place: "Three quick questions", color: "#7ee0d4", angle: -41 },
   { id: "about", nav: "About", title: "About the project", place: "The challenge, our approach and sources", color: "#c7b3ff", angle: 51 },
   { id: "datasets", nav: "Datasets", title: "All datasets", place: "Every Earth video in one list", color: "#8ee07a", angle: 127 },
@@ -369,7 +369,7 @@ function loadVideo(it) {
   dVideo.src = videoFor(it);
   // Sound comes later. Only NASA's Caldwell 73 example has its own soundtrack.
   dVideo.muted = !it.videoHasSound;
-  $("detail-status").textContent = it.videoHasSound ? "This one has NASA's own sound." : "Sound is coming soon.";
+  $("detail-status").textContent = it.videoHasSound ? "This one has NASA's own sound." : "The soundtrack is generated live from the video frames.";
 }
 
 function open(i, opener) {
@@ -415,7 +415,7 @@ $("detail-play").addEventListener("click", () => {
   if (dVideo.readyState < 3) $("detail-status").textContent = "Loading video from NASA…";
   announce(`Playing video: ${panelItem.title}`);
 });
-dVideo.addEventListener("playing", () => { if (panelItem) $("detail-status").textContent = panelItem.videoHasSound ? "This one has NASA's own sound." : "Sound is coming soon."; });
+dVideo.addEventListener("playing", () => { if (panelItem) $("detail-status").textContent = panelItem.videoHasSound ? "This one has NASA's own sound." : "The soundtrack is generated live from the video frames."; });
 dVideo.addEventListener("waiting", () => { if (videoPlaying) $("detail-status").textContent = "Loading video from NASA…"; });
 dVideo.addEventListener("ended", () => { stopVideo(); announce("Video finished"); });
 dVideo.addEventListener("error", () => {
@@ -454,15 +454,15 @@ $("replace-reset").addEventListener("click", () => {
 
 /* ---------- quiz ---------- */
 const QUIZ = [
-  { q: "In the lightning dataset, what should a sudden flash of lightning sound like?",
-    options: ["A long, slow chord", "A sharp hit, like a drum", "Silence"], answer: 1,
-    why: "Quick flashes suit short, punchy sounds, so each burst of lightning becomes a hit." },
-  { q: "In the night lights dataset, how should brighter cities sound?",
-    options: ["Quieter", "Louder or faster", "Exactly the same as dark areas"], answer: 1,
-    why: "Light intensity maps to volume or tempo, so brighter places sound louder or busier." },
-  { q: "In the forest height dataset, what do bright green and white mean?",
-    options: ["Taller trees", "Shorter plants", "Open water"], answer: 0,
-    why: "Bright green and white show the tallest forests; brown and dark green show shorter plants." },
+  { q: "In the lightning dataset, what does a sudden flash of lightning do to the soundtrack?",
+    options: ["Nothing — the music carries on", "The music suddenly grows louder and denser for a moment", "It mutes the soundtrack for a second"], answer: 1,
+    why: "A flash is a spike of bright colour on a dark globe. The engine's energy jumps, so the music swells in tempo and loudness, then relaxes." },
+  { q: "In the night lights dataset, how do brighter cities affect the music?",
+    options: ["Quieter", "Louder and denser", "Exactly the same as dark areas"], answer: 1,
+    why: "Coloured light raises the engine's colour energy, which lifts the volume, tempo and groove density. Dark ocean falls back to a sparse drift." },
+  { q: "How does the Sonificator choose the key of a soundtrack?",
+    options: ["The colour and position of the first strong frame set it", "It is the same key for every video", "The location on the map sets it"], answer: 0,
+    why: "The engine fingerprints the first strongly coloured frame: its hue and where the colour sits horizontally pick one of twelve keys and one of three chord progressions." },
 ];
 function renderQuiz() {
   const form = $("quiz-form");
@@ -685,6 +685,80 @@ wireVideoProcessing();
 const primeAudio = () => { initAudio(); };
 addEventListener("pointerdown", primeAudio, { once: true, capture: true });
 addEventListener("keydown", primeAudio, { once: true, capture: true });
+
+/* ---------- live sonificator readings under the video ---------- */
+// The wasm engine's feature getters are read every 200 ms while the detail
+// panel shows a dataset and turns them into the meter block under the video.
+const STATS = {
+  energy: { label: "Colour energy", el: ["stat-energy-fill", "stat-energy-meter", "stat-energy-val"] },
+  x:      { label: "Horizontal focus", el: ["stat-x-fill", "stat-x-meter", "stat-x-val"] },
+  y:      { label: "Vertical focus", el: ["stat-y-fill", "stat-y-meter", "stat-y-val"] },
+  spread: { label: "Spread", el: ["stat-spread-fill", "stat-spread-meter", "stat-spread-val"] },
+};
+const pct = (v) => Math.round(v * 100);
+function energyPhrase(v) {
+  return v < 0.28 ? "quiet, sparse drift" : v < 0.65 ? "steady, flowing groove" : "loud, intense climax";
+}
+function xPhrase(v) { return v < 0.35 ? "left of centre" : v < 0.65 ? "near centre" : "right of centre"; }
+function yPhrase(v) {
+  return v >= 0.65 ? "low in the frame; melody lifted an octave"
+       : v < 0.35 ? "high in the frame; base register"
+       : "mid-frame; melody up a fifth";
+}
+function spreadPhrase(v) { return v < 0.25 ? "clustered" : v < 0.6 ? "partly spread" : "widely spread"; }
+
+function setStat(name, v, phrase) {
+  const s = STATS[name];
+  const [fillId, meterId, valId] = s.el;
+  const fill = document.getElementById(fillId);
+  const meter = document.getElementById(meterId);
+  const val = document.getElementById(valId);
+  if (!fill || !meter || !val) return;
+  fill.style.width = pct(v) + "%";
+  meter.setAttribute("aria-valuenow", String(pct(v)));
+  meter.setAttribute("aria-valuetext", `${pct(v)} percent of full, ${phrase}`);
+  val.textContent = pct(v) + "%";
+}
+
+function updateDetailStats() {
+  // Cheap repeated lookups are fine: the panel opens rarely.
+  const box = $("detail-stats");
+  const note = $("detail-stats-status");
+  if (!box || !note) return;
+  if (!detail.open || !panelItem || panelItem.kind !== "data") return;
+
+  if (!sonificatorEngine) {
+    if (!box.hidden) box.hidden = true;
+    note.textContent = "The Sonificator engine isn't running in this browser, so there is no generated soundtrack or live meter. The text on this page still explains how it works.";
+    return;
+  }
+
+  let f;
+  try {
+    f = {
+      energy: sonificatorEngine.orange_pulse() ?? 0,
+      x: sonificatorEngine.pulse_x() ?? 0.5,
+      y: sonificatorEngine.pulse_y() ?? 0.5,
+      spread: sonificatorEngine.pulse_dispersion() ?? 0,
+    };
+  } catch (e) { return; }
+  box.hidden = false;
+
+  setStat("energy", f.energy, energyPhrase(f.energy));
+  setStat("x", f.x, xPhrase(f.x));
+  setStat("y", f.y, yPhrase(f.y));
+  setStat("spread", f.spread, spreadPhrase(f.spread));
+
+  // With no readable frames (cross-origin video), the features sit at zero.
+  if (videoPlaying && f.energy < 0.002 && f.spread < 0.002) {
+    note.textContent = "The engine can't read this video's pixels, most likely because it is served from another site. Use Replace this video to load a local copy and the soundtrack will start.";
+  } else if (!videoPlaying) {
+    note.textContent = "Paused: the readings hold their last values until the video plays again.";
+  } else {
+    note.textContent = "Live readings, sampled every few ticks. Energy drives tempo and loudness; focus sets pan and pitch register; spread sets arpeggio density.";
+  }
+}
+setInterval(updateDetailStats, 200);
 
 /* ---------- 3D ---------- */
 let renderer;

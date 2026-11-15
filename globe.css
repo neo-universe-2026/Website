@@ -239,6 +239,19 @@ html.large-text { font-size: 125%; }
 .detail-sound { margin: 0; color: var(--muted); font-size: .95rem; }
 .detail-video-msg { margin-top: .75rem; border-left: 3px solid var(--accent); padding-left: .75rem; color: var(--muted); }
 
+/* Live sonificator readings under the video */
+.detail-stats { margin-top: 1.25rem; }
+.detail-stats h3 { margin-top: 1.25rem; }
+.detail-stats #detail-stats-status { margin: 0; color: var(--muted); font-size: .95rem; max-width: 68ch; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .9rem 1.75rem; margin: .75rem 0 0; }
+.stat { min-width: 0; }
+.stat dt { font-weight: 700; }
+.stat dd { margin: .3rem 0 0; display: flex; align-items: center; gap: .6rem; }
+.meter { flex: 1 1 auto; height: .6rem; background: var(--bg-deep); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.meter-fill { display: block; height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width .3s ease-out; }
+@media (prefers-reduced-motion: reduce) { .meter-fill { transition: none; } }
+.stat-val { flex: none; min-width: 3ch; font-variant-numeric: tabular-nums; color: var(--muted); font-size: .95rem; }
+
 .detail-pairs { margin: 0; }
 .detail-pairs div { padding: .7rem 0; border-top: 1px solid var(--line); }
 .detail-pairs dt { font-weight: 700; }

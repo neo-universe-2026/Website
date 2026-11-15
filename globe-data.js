@@ -21,9 +21,9 @@ window.JUKEBOX_GLOBE = {
       "Comparing 2012 with 2023 shows how the world changed. Fast-growing cities in India and the Middle East grew brighter. Places hit by war or power cuts, such as parts of Ukraine, went darker. Some European cities dimmed because they switched to more efficient lighting."
     ],
     sound: [
-      ["Brightness", "Brighter cities play louder and faster; dark countryside stays quiet."],
-      ["Change", "Purple areas (more light than before) rise in pitch; orange areas (less light) fall."],
-      ["Zoomed views", "Each pop-out map of a region starts a new musical phrase."]
+      ["Colour energy", "City lights are the only strong colour on the dark map, so the music stays in the quiet Sparse Drift groove over the ocean and swells as bright, growing cities fill the frame."],
+      ["Zoomed views", "Each pop-out regional map moves the coloured area across the frame, panning the mix and lifting or dropping the melody's register as it goes."],
+      ["The change map", "The purple and orange change map is a broad, colourful wash, so the groove turns busier and the key stays locked to the first bright frame."]
     ],
     facts: [
       ["Instrument", "VIIRS Day/Night Band, on the Suomi NPP satellite"],
@@ -41,9 +41,9 @@ window.JUKEBOX_GLOBE = {
       "The swirls are real features. Large, slow eddies peel off major currents like the Gulf Stream, and warm water stretches along the equator. Watching them move shows how the ocean stirs and spreads heat."
     ],
     sound: [
-      ["Temperature", "Warm water plays bright, high notes. Cold water plays low, dark tones."],
-      ["Flow", "Faster currents make the rhythm move faster, and calm water slows it down."],
-      ["Swirls", "Eddies become rising and falling melodies that loop like the water does."]
+      ["Colour energy", "The currents colour nearly the whole map, so the groove sits in its busy state, and the music quickens and swells as colourful water spreads wider."],
+      ["Warmth", "Warm reds and yellows near the equator shift the melody towards warm overtones; the cold blues cool it back towards a crisp, brighter tone."],
+      ["Spread and position", "The main colour mass drifts with the currents, so the stereo pan and melodic register slowly follow the swirling water around the map."]
     ],
     facts: [
       ["Source", "ECCO2 ocean model (MIT and NASA JPL)"],
@@ -61,9 +61,10 @@ window.JUKEBOX_GLOBE = {
       "NASA's GEOS model tracks each type as winds carry it around the world. Saharan dust crosses the Atlantic to the Americas, and smoke from large fires can drift across whole continents."
     ],
     sound: [
-      ["Particle type", "Each type gets its own instrument: smoke, dust, sea salt and sulfates can be heard apart."],
-      ["Amount", "Thicker clouds of particles play louder."],
-      ["Movement", "As plumes drift, their sound moves from left to right speaker."]
+      ["Colour energy", "Several bright particle colours on screen at once keep the groove dense and energetic."],
+      ["Movement", "As the plumes drift and swirl, their combined centre slides across the frame, panning the music between the speakers."],
+      ["Spread", "Widely scattered particles fill in a denser arpeggio; when the plumes thin out, the notes space apart."],
+      ["One instrument for now", "The engine reads the frame as a whole, so smoke, dust and salt all feed one soundtrack together rather than separate part lines."]
     ],
     facts: [
       ["Source", "NASA GEOS atmosphere model"],
@@ -81,9 +82,8 @@ window.JUKEBOX_GLOBE = {
       "It tracks fine particles small enough to reach deep into the lungs (PM2.5), ground-level ozone, carbon monoxide from burning, and nitrogen oxides from traffic and power plants."
     ],
     sound: [
-      ["Colour palette", "The colour scale sets the harmony: cleaner air sounds calm, polluted air more tense."],
-      ["Crowding", "Dense, busy pollution makes the rhythm busier."],
-      ["Each pollutant", "Different pollutants can be separate instrument layers."]
+      ["Colour energy", "Thin, sparse plumes keep the groove light; thick, colourful pollution over land builds the energy, tempo and loudness up."],
+      ["Rotation", "As the forecast globe turns, the main colour mass sweeps across the frame, and the stereo pan and register follow it."]
     ],
     facts: [
       ["Source", "GEOS-CF composition forecasting system"],
@@ -101,9 +101,8 @@ window.JUKEBOX_GLOBE = {
       "They move huge amounts of warm water and heat away from the tropics. The animation uses a very high-resolution ECCO ocean simulation and shows flow near the surface in white, with deeper currents glowing blue."
     ],
     sound: [
-      ["Speed", "Strong boundary currents drive a fast, steady pulse; slow open ocean drifts quietly."],
-      ["Depth", "Deep currents (blue) play low notes beneath the white surface flow."],
-      ["Camera journey", "Each stop (Kuroshio, Agulhas, Gulf Stream) changes the key."]
+      ["Motion", "White currents on dark ocean barely register as colour, so the engine falls back on frame-to-frame motion: the moving water still drives the tempo, pan and density."],
+      ["Energy", "From the Kuroshio to the Gulf Stream, the fast boundary currents keep the activity high, and quiet stretches of ocean relax it back into Sparse Drift."]
     ],
     facts: [
       ["Source", "ECCO high-resolution ocean simulation"],
@@ -121,9 +120,9 @@ window.JUKEBOX_GLOBE = {
       "The model is very detailed, with grid cells only a few kilometres wide. That is fine enough to show individual storms and the CO₂ released by a single region."
     ],
     sound: [
-      ["Concentration", "Higher CO₂ makes the music denser and higher pitched."],
-      ["Plumes", "A plume streaming out of a city becomes a melody line that drifts with it."],
-      ["Time", "Over January to March, slow build-up becomes a slow crescendo."]
+      ["Concentration", "Glowing plumes on a dark globe are sparse colour, so the video mostly sits in the slow Sparse Drift groove and lifts as the plumes and the camera's close-ups fill more of the frame."],
+      ["Position", "The orbiting camera drags the CO₂ mass left and right across the frame, which gently pans the music between the speakers."],
+      ["Fingerprint", "The hue and position of the first bright plume set the key and chord progression that the whole soundtrack uses."]
     ],
     facts: [
       ["Source", "NASA GEOS model run for the DYAMOND project"],
@@ -141,9 +140,8 @@ window.JUKEBOX_GLOBE = {
       "Over six years it shows where the world's storms are. Lightning is most common over land in the tropics, especially Central Africa, and it follows the seasons north and south of the equator."
     ],
     sound: [
-      ["Each flash", "A single flash triggers a short, sharp hit, like a drum."],
-      ["Storm clusters", "Busy storm areas become fast drum rolls."],
-      ["Seasons", "As storms move with the seasons, the beat shifts across the speakers."]
+      ["Each flash", "A flash is a sudden spike of colour on a dark globe: the engine's energy jolts, so the music swells louder and denser for a moment, then relaxes."],
+      ["Clusters", "Busy storm regions keep the groove flowing between flashes; quiet stretches fall back to the sparse, slow drift."]
     ],
     facts: [
       ["Instrument", "Lightning Imaging Sensor (LIS) on the International Space Station"],
@@ -161,9 +159,8 @@ window.JUKEBOX_GLOBE = {
       "They bring much of the US West Coast's water supply, but strong ones cause floods. This 3D view from an Earth system model follows one as it streams across the ocean and reaches land."
     ],
     sound: [
-      ["Moisture", "Thicker bands of vapour make the sound fuller and wider."],
-      ["Width", "A wider river spreads the sound across more speakers, for an immersive feel."],
-      ["Landfall", "When the river reaches land, the music swells like the rain does."]
+      ["The river's path", "The bright vapour band against dark ocean is concentrated colour in one place, so the arpeggio stays focused and the band's position pans the mix."],
+      ["Width and landfall", "When the band spreads out and brightens near land, both the colour energy and its spread rise, filling out the groove."]
     ],
     facts: [
       ["Source", "NASA Earth system model, 3D visualization"],
@@ -180,9 +177,9 @@ window.JUKEBOX_GLOBE = {
       "Tall forests store more carbon. Knowing their height helps scientists work out how much carbon the world's forests hold, and how much is lost when they are cleared."
     ],
     sound: [
-      ["Height", "Taller trees play higher notes; short vegetation plays low."],
-      ["Colour", "Brown and dark green set darker chords; bright green and white set bright ones."],
-      ["Density", "Dense forest fills in the rhythm; open land leaves gaps."]
+      ["Colour energy", "A full-frame colour map keeps the engine's energy high, so the groove is busy for the whole video."],
+      ["Warmth", "Warm browns against cool greens and whites shift the melody's overtones between warm and bright as the palette changes."],
+      ["Sweeping view", "As the view pans across continents, the main colour mass moves and the pan and register follow it."]
     ],
     facts: [
       ["Instrument", "GEDI lidar on the International Space Station"],
