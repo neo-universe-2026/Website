@@ -1,7 +1,7 @@
 {
-  "name": "earth-info-jukebox",
+  "name": "neo-universe",
   "version": "0.1.0",
-  "description": "NASA Space Apps Challenge 2026 - Earth Information Jukebox",
+  "description": "Neo Universe - NASA Space Apps Challenge 2026, Earth Information Jukebox",
   "main": "index.html",
   "scripts": {
     "start": "bash scripts/dev.sh",

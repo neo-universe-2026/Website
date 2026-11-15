@@ -12,7 +12,7 @@ Use Chrome, Edge or Firefox. Keep this list on a second screen or a phone.
 
 ## 1. Page structure
 
-1. Open <http://localhost:8080/website/> and wait for "Earth Information Jukebox".
+1. Open <http://localhost:8080/website/> and wait for "Neo Universe".
 2. Press `H` a few times. **Expect:** "Spin the planet, heading level 1", then
    "Everything on the globe", "Earth datasets", "In orbit".
 3. Press `D` a few times. **Expect:** landmarks such as "banner",

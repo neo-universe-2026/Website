@@ -1,6 +1,6 @@
-# Nix Flakes Setup for Earth Information Jukebox
+# Nix Flakes Setup for Neo Universe
 
-This document explains how to use Nix flakes to manage dependencies for the Earth Information Jukebox project, including the sonificator audio engine.
+This document explains how to use Nix flakes to manage dependencies for the Neo Universe project, including the sonificator audio engine.
 
 ## Quick Start
 

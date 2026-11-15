@@ -1,4 +1,4 @@
-// Earth Information Jukebox home: a spinning Earth. NASA datasets glow on the
+// Neo Universe home: a spinning Earth. NASA datasets glow on the
 // surface; every other topic orbits it as a moon. Whatever faces you is the
 // current choice. Open it to read, watch, or (for topics) take part.
 import * as THREE from "three";

@@ -1,6 +1,6 @@
-# Earth Information Jukebox: website
+# Neo Universe: website
 
-A NASA Space Apps 2026 "Earth Information Jukebox" site built around a 3D
+A NASA Space Apps 2026 "Earth Information Jukebox" challenge site, *Neo Universe*, built around a 3D
 globe. NASA's Earth datasets glow on the planet's surface; everything else
 about the project (how it sounds, the quiz, about, the dataset list) orbits the
 planet as moons. Whatever faces you as it spins is your choice.

@@ -1,4 +1,4 @@
-/* Earth Information Jukebox: player, track list, replace dialog, keyboard
+/* Neo Universe: player, track list, replace dialog, keyboard
    shortcuts, screen-reader announcements and the listening quiz.
    Plain script (no modules) so the page also works when opened as a file. */
 (function () {
