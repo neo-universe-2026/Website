@@ -3,6 +3,58 @@
 // current choice. Open it to read, watch, or (for topics) take part.
 import * as THREE from "three";
 
+// Sonificator integration — initAudio() runs on the first user gesture,
+// because browsers refuse to start an AudioContext without one.
+let sonificatorEngine = null;
+let sonificatorInit = null;      // promise for the in-flight init
+let audioCtx = null;
+let analyzer = null, waveData = null;
+let outGain = null;
+let frameCount = 0;
+
+async function initAudio() {
+  if (audioCtx) { if (audioCtx.state === "suspended") audioCtx.resume(); return; }
+
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  audioCtx = new AC();
+  analyzer = audioCtx.createAnalyser();
+  analyzer.fftSize = 2048;
+  waveData = new Uint8Array(analyzer.frequencyBinCount);
+  outGain = audioCtx.createGain();
+  outGain.gain.value = 2.0;                       // sonificator output is quiet
+  outGain.connect(analyzer);
+  analyzer.connect(audioCtx.destination);
+
+  // Load the sonificator wasm-bindgen bindings (optional: without them the
+  // visualiser still tracks the video's own audio).
+  sonificatorInit = (async () => {
+    try {
+      const mod = await import("./wasm/pkg/sonificator_wasm.js");
+      await mod.default();                        // wasm-bindgen init()
+      sonificatorEngine = new mod.WasmSonificator(audioCtx.sampleRate);
+      console.log("Sonificator ready at", audioCtx.sampleRate, "Hz");
+    } catch (e) {
+      console.warn("Sonificator unavailable, visualiser uses the video audio only:", e.message);
+      return;
+    }
+    // Continuous pull: every audio callback drains the engine.
+    // render(n) returns an interleaved Float32Array of 2*n samples.
+    // (1 input channel, never connected: some browsers reject 0-input nodes.)
+    const node = audioCtx.createScriptProcessor(2048, 1, 2);
+    node.onaudioprocess = (e) => {
+      const L = e.outputBuffer.getChannelData(0);
+      const R = e.outputBuffer.getChannelData(1);
+      if (!sonificatorEngine) { L.fill(0); R.fill(0); return; }
+      let s;
+      try { s = sonificatorEngine.render(L.length); }
+      catch (err) { L.fill(0); R.fill(0); return; }
+      for (let i = 0; i < L.length; i++) { L[i] = s[i * 2]; R[i] = s[i * 2 + 1]; }
+    };
+    node.connect(outGain);
+  })();
+}
+
 const TRACKS = window.JUKEBOX_TRACKS || [];
 const GLOBE = window.JUKEBOX_GLOBE || {};
 const REDUCED_MEDIA = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -495,12 +547,52 @@ function drawWave(now) {
   wctx.clearRect(0, 0, wW, wH);
   wctx.globalCompositeOperation = "lighter";
   wctx.fillStyle = waveGrad;
-  for (const b of bars) {
-    // Slowly change each bar's random spike, like a living signal.
-    if (!still()) { b.j += (b.jt - b.j) * 0.1; if (Math.random() < 0.04) b.jt = Math.pow(Math.random(), 0.8); }
+  
+  // Live features from the engine (if loaded) drive the wave's energy.
+  let pulseIntensity = 0;
+  let pulseX = 0.5;
+  if (sonificatorEngine) {
+    try {
+      pulseIntensity = sonificatorEngine.orange_pulse() || 0;
+      pulseX = sonificatorEngine.pulse_x() || 0.5;
+    } catch (e) { /* engine busy between callbacks */ }
+  }
+
+  // The analyser carries the engine's output; fall back to the idle motion.
+  let audioData = null;
+  if (audioCtx && analyzer && waveData) {
+    try {
+      analyzer.getByteTimeDomainData(waveData);
+      audioData = waveData;
+    } catch (e) { /* analyser not ready yet */ }
+  }
+  
+  for (let i = 0; i < bars.length; i++) {
+    const b = bars[i];
     const x = b.x / wW;
     const env = 0.45 + 0.55 * Math.sin(Math.PI * x);              // a little calmer at the edges
-    const s = Math.abs(0.55 * Math.sin(x * 9 + t * 1.1) + 0.3 * Math.sin(x * 23 - t * 1.7) + 0.25 * Math.sin(x * 51 + t * 2.6));
+    
+    // Base waveform
+    let s = Math.abs(0.55 * Math.sin(x * 9 + t * 1.1) + 0.3 * Math.sin(x * 23 - t * 1.7) + 0.25 * Math.sin(x * 51 + t * 2.6));
+
+    // Boost based on the engine's pulse: overall intensity, plus a hotspot
+    // centred where the orange emissions sit horizontally.
+    const halo = Math.exp(-Math.pow((x - pulseX) * 4, 2));
+    s = s + (pulseIntensity * 0.5) + (pulseIntensity * halo * 0.8);
+    
+    // Use audio data if available
+    if (audioData) {
+      const audioIndex = Math.min(audioData.length - 1, Math.floor((i / bars.length) * audioData.length));
+      const audioValue = (audioData[audioIndex] - 128) / 128;
+      s = s * 0.5 + Math.abs(audioValue) * 0.5;
+      b.jt = Math.abs(audioValue) * 0.3 + 0.7;
+    } else if (!still()) {
+      b.j += (b.jt - b.j) * 0.1; 
+      if (Math.random() < 0.04) {
+        b.jt = pulseIntensity > 0.5 ? pulseIntensity + 0.3 : Math.pow(Math.random(), 0.8);
+      }
+    }
+    
     const h = wH * 0.47 * env * (0.12 + 0.88 * s * (0.25 + 0.75 * b.j));
     wctx.globalAlpha = 0.5 + 0.5 * b.j;
     wctx.fillRect(b.x, cy - h, barW, h * 2);
@@ -521,6 +613,78 @@ function waveLoop(now) {
 }
 new ResizeObserver(sizeWave).observe(wave);
 requestAnimationFrame(waveLoop);
+
+/* ---------- feeding the engine from video elements ---------- */
+// Wired at page load: the play listeners must exist before the first play
+// event, since initAudio() itself is started by one of them.
+// Frames are pushed to sonificator while a video plays; the engine's output
+// is drained continuously by the ScriptProcessor created in initAudio().
+const captureCanvas = document.createElement("canvas");
+const captureCtx = captureCanvas.getContext("2d", { willReadFrequently: true });
+const CAP_W = 160, CAP_H = 90;   // engine only needs coarse features
+let taintWarned = false;
+
+function captureFrame(video) {
+  if (!sonificatorEngine || !audioCtx || video.readyState < 2) return;
+  try {
+    captureCtx.drawImage(video, 0, 0, CAP_W, CAP_H);
+    const px = captureCtx.getImageData(0, 0, CAP_W, CAP_H).data;
+    sonificatorEngine.push_frame(new Uint8Array(px.buffer), CAP_W, CAP_H);
+  } catch (e) {
+    // Cross-origin videos without CORS taint the canvas: read the frame once,
+    // and suggest the site's Replace-video option to the user.
+    if (!taintWarned && /tainted|SecurityError|cross-origin/i.test(e.message)) {
+      taintWarned = true;
+      console.warn(
+        "Sonificator cannot read frames of this video (cross-origin without CORS). " +
+        "Use the Replace video button to pick a local copy, e.g. videos/co2.mp4."
+      );
+    }
+  }
+}
+
+function startPumping(video) {
+  console.log("Playback started:", video.currentSrc || video.src || "(set later)",
+    "— sonificator:", sonificatorEngine ? "ready" : "still loading");
+  Promise.resolve(initAudio()).then(() => {
+    if (outGain && audioCtx) outGain.gain.setTargetAtTime(2.0, audioCtx.currentTime, 0.1);
+  });
+  if (video.requestVideoFrameCallback) {
+    const step = () => {
+      captureFrame(video);
+      if (!video.paused && !video.ended) video._sf_rvfc = video.requestVideoFrameCallback(step);
+    };
+    video._sf_rvfc = video.requestVideoFrameCallback(step);
+  } else {
+    video._sf_timer = setInterval(() => captureFrame(video), 33);
+  }
+}
+
+function stopPumping(video) {
+  if (outGain && audioCtx) outGain.gain.setTargetAtTime(0.0, audioCtx.currentTime, 0.1);
+}
+
+function wireVideoProcessing() {
+  const hook = (video) => {
+    if (video._sf_wired) return;
+    video._sf_wired = true;
+    video.addEventListener("play", () => startPumping(video));
+    video.addEventListener("pause", () => stopPumping(video));
+    video.addEventListener("ended", () => stopPumping(video));
+  };
+  document.querySelectorAll("video").forEach(hook);
+  // Videos show up in the DOM over time (e.g. the detail player).
+  new MutationObserver(() => document.querySelectorAll("video").forEach(hook))
+    .observe(document.documentElement, { childList: true, subtree: true });
+}
+wireVideoProcessing();
+
+// Prime the AudioContext on the first interaction anywhere, so it is running
+// by the time a video starts (creation inside a gesture satisfies autoplay
+// policies; the engine output itself only flows while a video plays).
+const primeAudio = () => { initAudio(); };
+addEventListener("pointerdown", primeAudio, { once: true, capture: true });
+addEventListener("keydown", primeAudio, { once: true, capture: true });
 
 /* ---------- 3D ---------- */
 let renderer;

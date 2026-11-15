@@ -87,7 +87,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "co2",
     title: "DYAMOND Global Carbon Dioxide",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005196/dyamondPointCloud_3-29-2023a_dyamond_co2_anim_globe_zoom_1080p30.mp4",
+    video: "videos/co2.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005196/dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_print.jpg",
     soundtrack: null,
     videoHasSound: false,

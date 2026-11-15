@@ -1,0 +1,13 @@
+[package]
+name = "sonificator-wasm"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+sonificator = { git = "https://github.com/neo-universe-2026/sonificator.git", package = "sonificator" }
+wasm-bindgen = "0.2"

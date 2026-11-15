@@ -1,0 +1,31 @@
+{
+  "name": "earth-info-jukebox",
+  "version": "0.1.0",
+  "description": "NASA Space Apps Challenge 2026 - Earth Information Jukebox",
+  "main": "index.html",
+  "scripts": {
+    "start": "bash scripts/dev.sh",
+    "dev": "bash scripts/dev.sh",
+    "build": "echo 'Static website - no build required'",
+    "serve": "npx http-server . -p 8080 -c-1",
+    "wasm:build": "cargo build --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm --target web --out-dir wasm/pkg --out-name sonificator_wasm",
+    "sonificator:build": "cargo build --manifest-path sonificator/Cargo.toml --workspace",
+    "sonificator:test": "cargo test --manifest-path sonificator/Cargo.toml --workspace"
+  },
+  "keywords": [
+    "NASA",
+    "SpaceApps",
+    "Earth",
+    "Visualization",
+    "Sonification",
+    "Accessibility"
+  ],
+  "author": "NASA Space Apps Challenge Team",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
