@@ -55,25 +55,39 @@ jobs:
           wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm \
             --target web --out-dir wasm/pkg --out-name sonificator_wasm
 
-      # Restore/save split so the 1.2 GB of SVS originals can be dropped from
-      # the workspace before the Pages artifact is uploaded (1 GB artefact limit).
-      - name: Restore SVS video cache
+      # Free the preinstalled SDKs we don't need; the fetch step downloads
+      # multi-hundred-MB NASA originals and 4K transcodes otherwise hit
+      # ENOSPC mid-download (curl exit 23).
+      - name: Free runner disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/lib/android \
+            /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      # Cache the transcoded videos, not the 1.9 GB of NASA originals:
+      # scripts/fetch-videos.sh skips any track whose videos/<id>.mp4
+      # already exists, so a restored cache avoids all downloads. The key
+      # includes the fetch script's hash so transcoding changes (or new
+      # datasets) invalidate it.
+      - name: Restore dataset video cache
         uses: actions/cache/restore@v4
         with:
-          path: .cache/svs-src
-          key: svs-videos-v1
-          restore-keys: svs-videos-
+          path: videos
+          key: svs-videos-v2-${{ hashFiles('scripts/fetch-videos.sh') }}
+          restore-keys: svs-videos-v2-
 
       - name: Fetch and transcode dataset videos
-        run: bash scripts/fetch-videos.sh
+        run: |
+          bash scripts/fetch-videos.sh
+          df -h /
 
-      - name: Save SVS video cache
+      - name: Save dataset video cache
         if: always()
         continue-on-error: true   # save fails softly when the key already exists
         uses: actions/cache/save@v4
         with:
-          path: .cache/svs-src
-          key: svs-videos-v1
+          path: videos
+          key: svs-videos-v2-${{ hashFiles('scripts/fetch-videos.sh') }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
