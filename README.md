@@ -4,9 +4,48 @@ A NASA Space Apps 2026 "Earth Information Jukebox" site built around a 3D
 globe. NASA's Earth datasets glow on the planet's surface; everything else
 about the project (how it sounds, the quiz, about, the dataset list) orbits the
 planet as moons. Whatever faces you as it spins is your choice.
-It works with screen readers and the keyboard. Sound comes later.
+It works with screen readers and the keyboard. 
 
-## Open it
+## Quick Start
+
+### Using Nix (Recommended)
+
+For a complete development environment with all tools:
+
+```bash
+# First time: generate flake.lock and enter shell
+nix develop
+
+# Subsequent uses: flake.lock exists
+nix develop
+
+# Then run the server
+pnpm start
+# or
+npx http-server . -p 8080 -c-1
+```
+
+See [NIX.md](NIX.md) for more details on the Nix setup.
+
+**Note:** On first use, `nix develop` will generate the `flake.lock` file which pins all dependency versions.
+
+### Sonificator Integration
+
+The website now uses [sonificator](https://github.com/neo-universe-2026/sonificator) for audio generation. After running `nix develop`, build the WASM files:
+
+```bash
+git clone https://github.com/neo-universe-2026/sonificator.git
+cd sonificator/sonificator
+rustup target add wasm32-unknown-unknown
+cargo build --target wasm32-unknown-unknown --release
+wasm-bindgen target/wasm32-unknown-unknown/release/sonificator.wasm \
+  --out-dir ../../wasm/ \
+  --target web
+```
+
+The wave-bg visualizer will then sync with sonificator's audio output.
+
+### Without Nix
 
 Run this from this folder, then open <http://localhost:8080/>:
 
