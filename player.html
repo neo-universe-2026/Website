@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Earth Information Jukebox</title>
+  <meta name="description" content="Listen to NASA's Earth science visualizations. Each video of our changing planet is turned into sound, so blind and low-vision listeners can explore the data too." />
+  <meta name="theme-color" content="#102331" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23102331'/%3E%3Cpath d='M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3' fill='none' stroke='%23F4A340' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Skip links: the first things a keyboard or screen-reader user reaches -->
+  <nav class="skip-links" aria-label="Skip links">
+    <a href="#play-button">Skip to Play</a>
+    <a href="#next-button">Skip to Next track</a>
+    <a href="#description">Skip to Description</a>
+    <a href="#tracks">Skip to Track list</a>
+  </nav>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="Earth Information Jukebox, home">
+      <svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <span>Earth Information Jukebox</span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#player">Player</a></li>
+        <li><a href="index.html">3D Globe (home)</a></li>
+        <li><a href="#tracks">Tracks</a></li>
+        <li><a href="#how">How it sounds</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#keys">Keyboard</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section id="player" class="player" aria-labelledby="page-title">
+      <div class="intro">
+        <h1 id="page-title">Hear our planet change</h1>
+        <p>NASA's Earth visualizations, turned into sound. Pick a track, press play, and listen to city lights, ocean currents, lightning and forests.</p>
+      </div>
+
+      <div class="stage">
+        <div class="screen" id="screen" tabindex="0" role="group" aria-roledescription="video player" aria-label="Video. Arrow keys seek and change volume." aria-describedby="screen-help">
+          <video id="video" playsinline preload="metadata" aria-hidden="true"></video>
+          <canvas id="horizon" class="horizon" aria-hidden="true"></canvas>
+          <p class="screen-msg" id="screen-msg" hidden></p>
+          <p class="visually-hidden" id="screen-help">Space plays or pauses. Left and right arrows jump 5 seconds. Up and down arrows change volume.</p>
+        </div>
+
+        <div class="deck" aria-labelledby="now-title">
+          <p class="position" id="track-position">Track 1 of 10</p>
+          <h2 id="now-title" class="now-title">Loading tracks</h2>
+
+          <div class="transport" role="group" aria-label="Playback controls">
+            <button type="button" id="prev-button" class="btn btn-quiet" aria-keyshortcuts="P">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+              <span>Previous<span class="visually-hidden"> track</span></span>
+            </button>
+            <button type="button" id="play-button" class="btn btn-play" aria-keyshortcuts="Space K">
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-play"><path d="M7 4v16l13-8z"/></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-pause"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+              <span id="play-text">Play</span>
+            </button>
+            <button type="button" id="next-button" class="btn btn-quiet" aria-keyshortcuts="N">
+              <span>Next<span class="visually-hidden"> track</span></span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+            </button>
+          </div>
+
+          <div class="sliders">
+            <label for="seek" class="slider-label">
+              <span>Position</span>
+              <output id="time-out" for="seek" aria-hidden="true">0:00 / 0:00</output>
+            </label>
+            <input type="range" id="seek" min="0" max="100" step="0.1" value="0" aria-valuetext="0 seconds of 0 seconds" />
+
+            <label for="volume" class="slider-label">
+              <span>Volume</span>
+              <output id="volume-out" for="volume" aria-hidden="true">80%</output>
+            </label>
+            <input type="range" id="volume" min="0" max="100" step="5" value="80" aria-valuetext="80 percent" />
+          </div>
+
+          <p class="sound-source">Sound: <span id="sound-source">Placeholder soundtrack</span></p>
+        </div>
+      </div>
+
+      <section id="description" class="description" aria-labelledby="desc-heading" tabindex="-1">
+        <h2 id="desc-heading">Description</h2>
+        <div class="desc-grid">
+          <div>
+            <h3>What the video shows</h3>
+            <p id="desc-text"></p>
+          </div>
+          <div>
+            <h3>What to listen for</h3>
+            <p id="listen-text"></p>
+          </div>
+        </div>
+        <p class="desc-note" id="desc-note" hidden></p>
+        <p class="desc-actions">
+          <button type="button" id="speak-button" class="btn btn-quiet">Read description aloud</button>
+          <a id="source-link" href="#" target="_blank" rel="noopener">NASA source page<span class="visually-hidden"> (opens in a new tab)</span></a>
+        </p>
+      </section>
+    </section>
+
+    <section id="tracks" class="tracks" aria-labelledby="tracks-heading">
+      <h2 id="tracks-heading">All tracks</h2>
+      <p class="section-lede">Every Earth video from the Space Apps challenge resources. Use <strong>Replace</strong> to swap in your own video or soundtrack at any time.</p>
+      <ol id="track-list" class="track-list"></ol>
+    </section>
+
+    <section id="how" class="how" aria-labelledby="how-heading">
+      <h2 id="how-heading">How pictures become sound</h2>
+      <p class="section-lede">The jukebox reads each frame of a video and turns what it sees into music.</p>
+      <dl class="mapping">
+        <div>
+          <dt>Colour becomes harmony</dt>
+          <dd>Warm colours lean towards bright, major chords. Cool colours lean towards darker, minor ones.</dd>
+        </div>
+        <div>
+          <dt>Brightness becomes pitch</dt>
+          <dd>Bright areas play higher notes. Dark areas play lower notes.</dd>
+        </div>
+        <div>
+          <dt>Busy areas become rhythm</dt>
+          <dd>Crowded, detailed parts of the picture play faster rhythms. Calm, empty parts slow down.</dd>
+        </div>
+        <div>
+          <dt>Change over time becomes a story</dt>
+          <dd>As the video moves on, the music changes with it, so you hear the planet change.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="quiz" class="quiz" aria-labelledby="quiz-heading">
+      <h2 id="quiz-heading">Quick listening quiz</h2>
+      <p class="section-lede">Three questions about how the data sounds.</p>
+      <form id="quiz-form" novalidate></form>
+      <p id="quiz-score" class="quiz-score"></p>
+    </section>
+
+    <section id="keys" class="keys" aria-labelledby="keys-heading">
+      <h2 id="keys-heading">Keyboard shortcuts</h2>
+      <table>
+        <caption class="visually-hidden">Keyboard shortcuts for the player</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Space</kbd> or <kbd>K</kbd></td><td>Play or pause (when you are not on a button or link)</td></tr>
+          <tr><td><kbd>Left</kbd> / <kbd>Right</kbd> arrows</td><td>Jump back or forward 5 seconds (in the video area)</td></tr>
+          <tr><td><kbd>Up</kbd> / <kbd>Down</kbd> arrows</td><td>Volume up or down (in the video area)</td></tr>
+          <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>Next or previous track</td></tr>
+          <tr><td><kbd>M</kbd></td><td>Mute or unmute</td></tr>
+          <tr><td><kbd>D</kbd></td><td>Jump to the description</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Visualizations by <a href="https://svs.gsfc.nasa.gov/gallery/earth-information-center/">NASA's Scientific Visualization Studio</a>, from the <a href="https://www.spaceappschallenge.org/2026/challenges/the-earth-information-jukebox/?tab=resources">Earth Information Jukebox challenge resources</a>. Browse the EIC content database for more videos to add.</p>
+    <p>A NASA Space Apps Challenge 2026 project. Not endorsed by NASA.</p>
+  </footer>
+
+  <!-- Replace dialog -->
+  <dialog id="replace-dialog" aria-labelledby="replace-title" aria-describedby="replace-help">
+    <form method="dialog" id="replace-form">
+      <h2 id="replace-title">Replace media</h2>
+      <p id="replace-help">Paste a link, or choose a file from your computer. Links are remembered in this browser. Files last until you reload; to keep one for good, put it in the <code>website/videos</code> folder and edit <code>tracks.js</code>.</p>
+
+      <fieldset>
+        <legend>Video</legend>
+        <label for="replace-video-url">Video link or path (.mp4 or .webm)</label>
+        <input type="text" id="replace-video-url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="videos/my-video.mp4" />
+        <label for="replace-video-file">Or choose a video file</label>
+        <input type="file" id="replace-video-file" accept="video/*" />
+      </fieldset>
+
+      <fieldset>
+        <legend>Soundtrack</legend>
+        <label for="replace-audio-url">Soundtrack link or path (.wav, .mp3 or .ogg)</label>
+        <input type="text" id="replace-audio-url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="sounds/my-sound.wav" />
+        <label for="replace-audio-file">Or choose an audio file</label>
+        <input type="file" id="replace-audio-file" accept="audio/*" />
+      </fieldset>
+
+      <div class="dialog-actions">
+        <button type="submit" value="save" class="btn btn-play">Save</button>
+        <button type="submit" value="reset" class="btn btn-quiet">Restore original</button>
+        <button type="submit" value="cancel" class="btn btn-quiet">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <audio id="soundtrack" preload="metadata"></audio>
+
+  <!-- Spoken announcements for screen readers -->
+  <div id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="tracks.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
