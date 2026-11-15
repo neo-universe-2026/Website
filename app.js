@@ -21,6 +21,12 @@
   var announcer = $("announcer");
   var dialog = $("replace-dialog");
 
+  // On-video overlay player (centre play button + progress bar), custom-styled.
+  var overlay = window.overlayPlayer
+    ? window.overlayPlayer({ range: $("overlay-seek"), timeEl: $("overlay-time"), onSeek: function (t) { seekTo(t); } })
+    : null;
+  var overlayPlay = $("overlay-play");
+
   var index = 0;
   var playing = false;
   var muted = false;
@@ -265,6 +271,7 @@
     stageEl.classList.toggle("is-playing", playing);
     playText.textContent = playing ? "Pause" : "Play";
     playBtn.setAttribute("aria-label", (playing ? "Pause, " : "Play, ") + title);
+    if (overlayPlay) overlayPlay.setAttribute("aria-label", (playing ? "Pause" : "Play") + ": " + title);
   }
 
   function updateSeek() {
@@ -273,8 +280,10 @@
     var t = m.currentTime || 0;
     seek.max = d ? d.toFixed(1) : 100;
     if (document.activeElement !== seek || !seek.dataset.dragging) seek.value = t.toFixed(1);
+    seek.style.setProperty("--vp-fill", d ? ((t / d) * 100).toFixed(1) + "%" : "0%");
     seek.setAttribute("aria-valuetext", spoken(t) + " of " + spoken(d));
     $("time-out").textContent = clock(t) + " / " + clock(d);
+    if (overlay) overlay.sync(t, d);
   }
 
   function seekTo(t) {
@@ -299,6 +308,7 @@
     video.muted = !(current && current.useVideoSound) || muted;
     audio.muted = muted;
     $("volume-out").textContent = volume.value + "%";
+    volume.style.setProperty("--vp-fill", volume.value + "%");
     volume.setAttribute("aria-valuetext", muted ? "Muted, " + volume.value + " percent" : volume.value + " percent");
   }
 
@@ -362,6 +372,7 @@
   playBtn.addEventListener("click", function () { toggle(); });
   $("next-button").addEventListener("click", next);
   $("prev-button").addEventListener("click", prev);
+  if (overlayPlay) overlayPlay.addEventListener("click", function (e) { e.stopPropagation(); toggle(); });
   seek.addEventListener("pointerdown", function () { seek.dataset.dragging = "1"; });
   seek.addEventListener("pointerup", function () { delete seek.dataset.dragging; });
   seek.addEventListener("input", function () { seekTo(Number(seek.value)); });
