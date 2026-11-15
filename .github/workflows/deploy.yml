@@ -64,6 +64,11 @@ jobs:
             /opt/hostedtoolcache/CodeQL
           df -h /
 
+      # The hosted runner image has no ffmpeg; scripts/fetch-videos.sh
+      # needs it for the transcode step.
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
+
       # Cache the transcoded videos, not the 1.9 GB of NASA originals:
       # scripts/fetch-videos.sh skips any track whose videos/<id>.mp4
       # already exists, so a restored cache avoids all downloads. The key
