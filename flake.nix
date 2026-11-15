@@ -20,7 +20,7 @@
           cargo
           rustc
           rustup
-          wasm-bindgen
+          wasm-bindgen-cli
 
           ffmpeg
           git
