@@ -9,8 +9,10 @@ wasm/target/
 # Local server cache
 .cache/
 
-# Video files (large, keep in separate storage)
-videos/
+# Video files (large, keep in separate storage) -- except the default CO2
+# track, which the site sonifies and GitHub Pages must serve.
+videos/*
+!videos/co2.mp4
 
 # Demo audio files
 demos/
