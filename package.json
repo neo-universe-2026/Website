@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bash scripts/dev.sh",
     "dev": "bash scripts/dev.sh",
-    "build": "echo 'Static website - no build required'",
+    "build": "bash scripts/fetch-videos.sh && echo 'Static website - videos fetched, no other build required'",
+    "videos:fetch": "bash scripts/fetch-videos.sh",
     "serve": "npx http-server . -p 8080 -c-1",
     "wasm:build": "cargo build --manifest-path wasm/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm --target web --out-dir wasm/pkg --out-name sonificator_wasm",
     "sonificator:build": "cargo build --manifest-path sonificator/Cargo.toml --workspace",

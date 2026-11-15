@@ -316,6 +316,12 @@ const detail = $("detail");
 const dVideo = $("detail-video");
 let panelItem = null, videoPlaying = false;
 
+// On-video overlay player (centre play button + progress bar), custom-styled.
+const overlay = window.overlayPlayer
+  ? window.overlayPlayer({ range: $("detail-overlay-seek"), timeEl: $("detail-overlay-time"), video: dVideo })
+  : null;
+function syncOverlay() { overlay && overlay.sync(dVideo.currentTime, dVideo.duration); }
+
 function fillPairs(dl, pairs) {
   dl.innerHTML = "";
   (pairs || []).forEach(([k, v]) => {
@@ -369,6 +375,7 @@ function loadVideo(it) {
   dVideo.src = videoFor(it);
   // Sound comes later. Only NASA's Caldwell 73 example has its own soundtrack.
   dVideo.muted = !it.videoHasSound;
+  syncOverlay();
   $("detail-status").textContent = it.videoHasSound ? "This one has NASA's own sound." : "The soundtrack is generated live from the video frames.";
 }
 
@@ -412,12 +419,21 @@ $("detail-play").addEventListener("click", () => {
   if (videoPlaying) { stopVideo(); announce("Paused"); return; }
   dVideo.play().catch(() => {});
   setVideoPlaying(true);
-  if (dVideo.readyState < 3) $("detail-status").textContent = "Loading video from NASA…";
+  if (dVideo.readyState < 3) $("detail-status").textContent = "Loading video…";
   announce(`Playing video: ${panelItem.title}`);
 });
+// The overlay play button (on the video itself) drives the same logic.
+$("detail-overlay-play").addEventListener("click", (e) => { e.stopPropagation(); $("detail-play").click(); });
+// Clicking the picture also toggles playback, like a normal player.
+dVideo.addEventListener("click", () => { if (dVideo.getAttribute("src")) $("detail-play").click(); });
+dVideo.addEventListener("play", () => setVideoPlaying(true));
+dVideo.addEventListener("pause", () => { if (videoPlaying) setVideoPlaying(false); });
+dVideo.addEventListener("timeupdate", syncOverlay);
+dVideo.addEventListener("seeked", syncOverlay);
+dVideo.addEventListener("loadedmetadata", syncOverlay);
 dVideo.addEventListener("playing", () => { if (panelItem) $("detail-status").textContent = panelItem.videoHasSound ? "This one has NASA's own sound." : "The soundtrack is generated live from the video frames."; });
-dVideo.addEventListener("waiting", () => { if (videoPlaying) $("detail-status").textContent = "Loading video from NASA…"; });
-dVideo.addEventListener("ended", () => { stopVideo(); announce("Video finished"); });
+dVideo.addEventListener("waiting", () => { if (videoPlaying) $("detail-status").textContent = "Loading video…"; });
+dVideo.addEventListener("ended", () => { stopVideo(); syncOverlay(); announce("Video finished"); });
 dVideo.addEventListener("error", () => {
   if (!dVideo.getAttribute("src")) return;
   const m = $("detail-video-msg");
@@ -514,7 +530,8 @@ applySettings();
 
 /* ---------- background: a glowing sound wave behind the planet ---------- */
 // Thin vertical bars mirrored around a bright centre line, like an audio
-// waveform. Teal and ocean blue to match the site, fading out at the tips.
+// waveform. Ocean blue to teal, delicate at the edges, with an amber bloom
+// that follows the engine's hotspot. Kept dim so it never fights the planet.
 const wave = $("wave-bg");
 const wctx = wave.getContext("2d");
 let wW = 0, wH = 0, bars = [], waveGrad = null, coreGrad = null;
@@ -522,20 +539,20 @@ function sizeWave() {
   const dpr = Math.min(devicePixelRatio || 1, 1.5);
   wW = wave.width = Math.round(wave.clientWidth * dpr);
   wH = wave.height = Math.round(wave.clientHeight * dpr);
-  const gap = Math.max(4, Math.round(5 * dpr));
+  const gap = Math.max(6, Math.round(8 * dpr));
   bars = Array.from({ length: Math.ceil(wW / gap) + 1 }, (_, i) => ({ x: i * gap, j: Math.random(), jt: Math.random() }));
   const cy = wH * 0.5;
   waveGrad = wctx.createLinearGradient(0, cy - wH * 0.45, 0, cy + wH * 0.45);
   waveGrad.addColorStop(0, "rgba(40, 110, 190, 0)");
-  waveGrad.addColorStop(0.3, "rgba(50, 140, 220, .35)");
-  waveGrad.addColorStop(0.46, "rgba(110, 215, 225, .85)");
-  waveGrad.addColorStop(0.5, "rgba(225, 250, 255, 1)");
-  waveGrad.addColorStop(0.54, "rgba(110, 215, 225, .85)");
-  waveGrad.addColorStop(0.7, "rgba(50, 140, 220, .35)");
+  waveGrad.addColorStop(0.3, "rgba(50, 140, 220, .16)");
+  waveGrad.addColorStop(0.46, "rgba(110, 215, 225, .45)");
+  waveGrad.addColorStop(0.5, "rgba(205, 240, 250, .8)");
+  waveGrad.addColorStop(0.54, "rgba(110, 215, 225, .45)");
+  waveGrad.addColorStop(0.7, "rgba(50, 140, 220, .16)");
   waveGrad.addColorStop(1, "rgba(40, 110, 190, 0)");
   coreGrad = wctx.createLinearGradient(0, 0, wW, 0);
   coreGrad.addColorStop(0, "rgba(126, 224, 212, 0)");
-  coreGrad.addColorStop(0.5, "rgba(200, 245, 255, .9)");
+  coreGrad.addColorStop(0.5, "rgba(200, 245, 255, .55)");
   coreGrad.addColorStop(1, "rgba(126, 224, 212, 0)");
   drawWave(performance.now());
 }
@@ -543,11 +560,12 @@ function drawWave(now) {
   if (!wW) return;
   const t = now / 1000;
   const cy = wH * 0.5;
-  const barW = Math.max(2, Math.round(wW / 650));
+  const barW = Math.max(2, Math.round(wW / 900));
+  const round = typeof wctx.roundRect === "function";
   wctx.clearRect(0, 0, wW, wH);
   wctx.globalCompositeOperation = "lighter";
   wctx.fillStyle = waveGrad;
-  
+
   // Live features from the engine (if loaded) drive the wave's energy.
   let pulseIntensity = 0;
   let pulseX = 0.5;
@@ -566,12 +584,12 @@ function drawWave(now) {
       audioData = waveData;
     } catch (e) { /* analyser not ready yet */ }
   }
-  
+
   for (let i = 0; i < bars.length; i++) {
     const b = bars[i];
     const x = b.x / wW;
     const env = 0.45 + 0.55 * Math.sin(Math.PI * x);              // a little calmer at the edges
-    
+
     // Base waveform
     let s = Math.abs(0.55 * Math.sin(x * 9 + t * 1.1) + 0.3 * Math.sin(x * 23 - t * 1.7) + 0.25 * Math.sin(x * 51 + t * 2.6));
 
@@ -579,7 +597,7 @@ function drawWave(now) {
     // centred where the orange emissions sit horizontally.
     const halo = Math.exp(-Math.pow((x - pulseX) * 4, 2));
     s = s + (pulseIntensity * 0.5) + (pulseIntensity * halo * 0.8);
-    
+
     // Use audio data if available
     if (audioData) {
       const audioIndex = Math.min(audioData.length - 1, Math.floor((i / bars.length) * audioData.length));
@@ -587,22 +605,36 @@ function drawWave(now) {
       s = s * 0.5 + Math.abs(audioValue) * 0.5;
       b.jt = Math.abs(audioValue) * 0.3 + 0.7;
     } else if (!still()) {
-      b.j += (b.jt - b.j) * 0.1; 
+      b.j += (b.jt - b.j) * 0.1;
       if (Math.random() < 0.04) {
         b.jt = pulseIntensity > 0.5 ? pulseIntensity + 0.3 : Math.pow(Math.random(), 0.8);
       }
     }
-    
+
     const h = wH * 0.47 * env * (0.12 + 0.88 * s * (0.25 + 0.75 * b.j));
-    wctx.globalAlpha = 0.5 + 0.5 * b.j;
-    wctx.fillRect(b.x, cy - h, barW, h * 2);
+    wctx.globalAlpha = 0.3 + 0.45 * b.j;
+    if (round) wctx.beginPath(), wctx.roundRect(b.x - barW / 2, cy - h, barW, h * 2, barW / 2), wctx.fill();
+    else wctx.fillRect(b.x, cy - h, barW, h * 2);
   }
-  // Soft glow and the bright core line
-  wctx.globalAlpha = 0.5;
+
+  // A soft amber bloom where the engine's pulse sits, echoing the hotspot.
+  if (pulseIntensity > 0.15) {
+    const gx = Math.max(0, Math.min(1, (pulseX - 0.5) * 1.6 + 0.5)) * wW;
+    const gr = wH * (0.3 + 0.3 * Math.min(1, pulseIntensity));
+    const a = 0.16 * Math.min(1, pulseIntensity);
+    const rg = wctx.createRadialGradient(gx, cy, 0, gx, cy, gr);
+    rg.addColorStop(0, `rgba(255, 178, 96, ${a})`);
+    rg.addColorStop(1, "rgba(255, 178, 96, 0)");
+    wctx.globalAlpha = 1;
+    wctx.fillStyle = rg;
+    wctx.fillRect(gx - gr, cy - gr, gr * 2, gr * 2);
+  }
+
+  // Thin bright core line along the horizon
+  wctx.globalAlpha = 0.4;
   wctx.fillStyle = coreGrad;
-  wctx.fillRect(0, cy - wH * 0.012, wW, wH * 0.024);
+  wctx.fillRect(0, cy - Math.max(1, wH * 0.0012), wW, Math.max(2, wH * 0.0025));
   wctx.globalAlpha = 1;
-  wctx.fillRect(0, cy - Math.max(1, wH * 0.0015), wW, Math.max(2, wH * 0.003));
   wctx.globalCompositeOperation = "source-over";
 }
 let waveLast = 0;
@@ -770,16 +802,26 @@ try {
 }
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+// Filmic tone mapping is what keeps the bright limb from blowing out to white.
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
 let baseDist = 5;
 const cam = { x: 0, y: -0.16, z: baseDist };
 
-scene.add(new THREE.AmbientLight(0xb8c8d8, 0.9));
-const sun = new THREE.DirectionalLight(0xffffff, 2.4);
-sun.position.set(-4, 2, 5);
+// Low, cool ambient so the night side stays readable without looking flat.
+// The sun itself sits BEHIND the planet: a warm backlight that rims the limb,
+// fires the atmosphere's scattering and peeks over the top edge like the
+// opening shot of a film studio ident.
+scene.add(new THREE.AmbientLight(0x3a4652, 0.75));
+const sun = new THREE.DirectionalLight(0xffe3b0, 3.2);
+sun.position.set(2.5, 1.6, -3.5);
 scene.add(sun);
+const fill = new THREE.DirectionalLight(0x3d5a78, 0.55);
+fill.position.set(-3, -0.5, 4);
+scene.add(fill);
 
 const globe = new THREE.Group();
 scene.add(globe);
@@ -787,44 +829,174 @@ const ringPivot = new THREE.Group();     // the orbit: turns with the globe, til
 scene.add(ringPivot);
 
 const loader = new THREE.TextureLoader();
-const earthMat = new THREE.MeshPhongMaterial({ color: 0x2c5a78, specular: 0x333333, shininess: 14 });
-const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 96), earthMat);
+// Intensity starts at 0 so the whole sphere doesn't glow before the
+// city-lights texture arrives; it only lights up through the map.
+// Night side of Earth: the lights texture is both the base map and the
+// glow, so continents read faintly while cities burn through. Intensity
+// stays 0 until the texture lands, so the sphere never glows uniformly.
+const earthMat = new THREE.MeshPhongMaterial({
+  color: 0xffffff, specular: 0x1c2a36, shininess: 18,
+  emissive: 0xffd9a0, emissiveIntensity: 0,
+});
+const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 128, 128), earthMat);
 globe.add(earth);
-loader.load(TEX + "earth_atmos_2048.jpg", (t) => { t.colorSpace = THREE.SRGBColorSpace; earthMat.map = t; earthMat.color.set(0xffffff); earthMat.needsUpdate = true; });
-loader.load(TEX + "earth_normal_2048.jpg", (t) => { earthMat.normalMap = t; earthMat.normalScale.set(0.6, 0.6); earthMat.needsUpdate = true; });
-loader.load(TEX + "earth_specular_2048.jpg", (t) => { earthMat.specularMap = t; earthMat.needsUpdate = true; });
+loader.load(TEX + "earth_lights_2048.png", (t) => {
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  earthMat.map = t;
+  earthMat.emissiveMap = t;
+  earthMat.emissiveIntensity = 0.85;
+  earthMat.needsUpdate = true;
+});
+loader.load(TEX + "earth_normal_2048.jpg", (t) => { earthMat.normalMap = t; earthMat.normalScale.set(0.5, 0.5); earthMat.needsUpdate = true; });
 
-const cloudMat = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0.32, depthWrite: false });
-const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.012, 64, 64), cloudMat);
+const cloudMat = new THREE.MeshPhongMaterial({ transparent: true, opacity: 0.28, depthWrite: false, shininess: 4 });
+const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.012, 96, 96), cloudMat);
 clouds.visible = false;
 globe.add(clouds);
-loader.load(TEX + "earth_clouds_1024.png", (t) => { t.colorSpace = THREE.SRGBColorSpace; cloudMat.map = t; cloudMat.needsUpdate = true; clouds.visible = true; });
+loader.load(TEX + "earth_clouds_2048.png", (t) => { t.colorSpace = THREE.SRGBColorSpace; cloudMat.map = t; cloudMat.needsUpdate = true; clouds.visible = true; });
 
-scene.add(new THREE.Mesh(
-  new THREE.SphereGeometry(1.14, 64, 64),
-  new THREE.ShaderMaterial({
-    side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-    fragmentShader: `varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(0.35,0.65,1.0,1.0) * i; }`,
-  })
-));
-
-{ // stars
-  const n = 1400, pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const v = new THREE.Vector3().randomDirection().multiplyScalar(30 + Math.random() * 20);
-    pos.set([v.x, v.y, v.z], i * 3);
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xcfe0ff, size: 1.3, sizeAttenuation: false, transparent: true, opacity: 0.7 })));
+// Atmosphere, in two shells. Both shade by the view ray's *impact parameter*
+// — its true miss-distance from the planet's centre — so the glow peaks
+// exactly at the silhouette and fades outward, instead of forming a fat
+// donut. Scattering leans warm on the side facing the sun.
+const SCATTER_SUN = new THREE.Vector3(0.7, 0.62, -2.8).normalize();
+const atmoCenter = new THREE.Vector3();      // planet centre in view space, set each frame
+function atmosphereShell(radius, falloff, intensity, warmAmt) {
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 64, 32),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: {
+        uCenter: { value: atmoCenter },
+        uSunDir: { value: SCATTER_SUN },
+        uR: { value: radius },
+        uFalloff: { value: falloff },
+        uIntensity: { value: intensity },
+        uWarmAmt: { value: warmAmt },
+      },
+      vertexShader: `varying vec3 vVP; varying vec3 vWN;
+void main(){
+  vVP = (modelViewMatrix * vec4(position, 1.0)).xyz;
+  vWN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`,
+      fragmentShader: `uniform vec3 uCenter; uniform vec3 uSunDir;
+uniform float uR; uniform float uFalloff; uniform float uIntensity; uniform float uWarmAmt;
+varying vec3 vVP; varying vec3 vWN;
+void main(){
+  vec3 d = normalize(vVP);                                 // sight-line direction
+  float b = length(cross(d, uCenter));                     // how far the ray misses the centre
+  float x = clamp((uR - b) / (uR - 1.0), 0.0, 1.0);        // 1 at the limb, 0 at the shell edge
+  float g = pow(x, uFalloff) * uIntensity;
+  // Warm up only the limb area that sits toward the sun on screen: compare
+  // tangential directions, not raw normals (the visible shell all faces away).
+  vec2 st = vWN.xy;
+  float tl = length(st);
+  float sunSide = tl > 1e-4 ? pow(max(dot(st / tl, normalize(uSunDir.xy)), 0.0), 3.0) * min(tl * 2.0, 1.0) : 0.0;
+  vec3 col = mix(vec3(0.26, 0.50, 0.95), vec3(1.0, 0.55, 0.22), sunSide * uWarmAmt);
+  gl_FragColor = vec4(col * g, g);
+}`,
+    })
+  );
+}
+scene.add(atmosphereShell(1.15, 2.6, 1.1, 0.95));   // bright, thin ring hugging the limb
+scene.add(atmosphereShell(1.42, 4.5, 0.38, 0.55));  // wide, faint haze beyond it, softening the edge
+{ // a whisper of glow ON the disc's own edge and warm tint near the sun
+  scene.add(new THREE.Mesh(
+    new THREE.SphereGeometry(1.012, 96, 48),
+    new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uSunDir: { value: SCATTER_SUN } },
+      vertexShader: `varying vec3 vN; varying vec3 vWN;
+void main(){
+  vN = normalize(normalMatrix * normal);
+  vWN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`,
+      fragmentShader: `uniform vec3 uSunDir; varying vec3 vN; varying vec3 vWN;
+void main(){
+  float edge = pow(1.0 - abs(dot(vN, vec3(0.0, 0.0, 1.0))), 5.0);
+  vec2 st = vWN.xy;
+  float tl = length(st);
+  float sunSide = tl > 1e-4 ? pow(max(dot(st / tl, normalize(uSunDir.xy)), 0.0), 3.0) * min(tl * 2.0, 1.0) : 0.0;
+  vec3 col = vec3(0.35, 0.60, 1.0) * edge + vec3(1.0, 0.60, 0.25) * sunSide * edge;
+  gl_FragColor = vec4(col * 0.55, edge * (0.55 + sunSide * 0.4));
+}`,
+    })
+  ));
 }
 
-{ // the orbit line
-  const pts = [];
-  for (let a = 0; a <= 128; a++) { const t = (a / 128) * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(t) * RING_R, 0, -Math.sin(t) * RING_R)); }
-  ringPivot.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
-    new THREE.LineBasicMaterial({ color: 0x7ea6c2, transparent: true, opacity: 0.28 })));
+// The sun itself: a hot core with a warm bloom, placed behind the planet so
+// the Earth's disc eclipses it and light spills around the limb. The wide,
+// flat streak is an anamorphic-lens flare.
+function sunTexture() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 256;
+  const g = c.getContext("2d");
+  const grad = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  grad.addColorStop(0, "rgba(255, 255, 255, 1)");
+  grad.addColorStop(0.08, "rgba(255, 244, 220, 1)");
+  grad.addColorStop(0.22, "rgba(255, 214, 150, .5)");
+  grad.addColorStop(0.5, "rgba(255, 180, 90, .14)");
+  grad.addColorStop(1, "rgba(255, 160, 70, 0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 256, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const sunTex = sunTexture();
+const sunSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.9 }));
+sunSprite.position.set(0.7, 0.62, -2.8);
+sunSprite.scale.setScalar(2.6);
+scene.add(sunSprite);
+// A short, subtle anamorphic streak hugging the sun. Wide streaks read as
+// smears at these angles, so it stays close in and faint.
+const sunStreak = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex, color: 0xffc890, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.28 }));
+sunStreak.position.set(0.7, 0.62, -2.85);
+sunStreak.scale.set(3.8, 0.3, 1);
+scene.add(sunStreak);
+
+const starMats = [];   // kept so the frame loop can twinkle the layers gently
+
+{ // stars: three depth layers, warm and cool tints, so they read as distance.
+  // Materials are kept so the frame loop can twinkle them gently.
+  const layers = [
+    { n: 900, size: 1.1, opacity: 0.45, colors: ["#c8d4ee", "#b6c8e6", "#d9e2f5"] },
+    { n: 260, size: 1.8, opacity: 0.65, colors: ["#e8f0ff", "#cfe0ff", "#ffe7c4"] },
+    { n: 60,  size: 2.6, opacity: 0.85, colors: ["#ffffff", "#eaf2ff", "#ffedcf"] },
+  ];
+  for (const L of layers) {
+    const pos = new Float32Array(L.n * 3), col = new Float32Array(L.n * 3);
+    for (let i = 0; i < L.n; i++) {
+      const v = new THREE.Vector3().randomDirection().multiplyScalar(30 + Math.random() * 20);
+      pos.set([v.x, v.y, v.z], i * 3);
+      const c = new THREE.Color(L.colors[Math.floor(Math.random() * L.colors.length)]);
+      col.set([c.r, c.g, c.b], i * 3);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    const mat = new THREE.PointsMaterial({
+      size: L.size, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: L.opacity, depthWrite: false,
+    });
+    starMats.push({ mat, base: L.opacity, phase: Math.random() * 6.28, speed: 0.4 + Math.random() * 0.9 });
+    scene.add(new THREE.Points(g, mat));
+  }
+}
+
+{ // the orbit: a thin glowing ring with a soft wide halo beneath it
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(RING_R, 0.003, 8, 220),
+    new THREE.MeshBasicMaterial({ color: 0x9fd8ef, transparent: true, opacity: 0.38, blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+  const halo = new THREE.Mesh(
+    new THREE.TorusGeometry(RING_R, 0.014, 8, 220),
+    new THREE.MeshBasicMaterial({ color: 0x4a8fb5, transparent: true, opacity: 0.10, blending: THREE.AdditiveBlending, depthWrite: false })
+  );
+  ring.rotation.x = halo.rotation.x = Math.PI / 2;
+  ringPivot.add(ring, halo);
 }
 
 function glowTexture() {
@@ -855,26 +1027,65 @@ const markers = all.map((it) => {
   const group = new THREE.Group();
   const color = new THREE.Color(it.color);
   const moon = it.ring;
-  const body = moon
-    ? new THREE.Mesh(new THREE.SphereGeometry(0.075, 32, 32), new THREE.MeshPhongMaterial({ color, emissive: color, emissiveIntensity: 0.45, shininess: 30 }))
-    : new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), new THREE.MeshBasicMaterial({ color }));
-  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
-  const baseHalo = moon ? 0.34 : 0.16;
-  halo.scale.setScalar(baseHalo);
+  // Two-layer halo: a tight bright core plus a wide faint bloom, so the glow
+  // reads as light rather than a hard sprite edge.
+  const halo = new THREE.Group();
+  const haloInner = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  const haloOuter = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.45 }));
+  halo.add(haloInner, haloOuter);
+  const baseHalo = moon ? 0.2 : 0.11;
+  const baseHaloOuter = moon ? 0.4 : 0.2;
+  haloInner.scale.setScalar(baseHalo);
+  haloOuter.scale.setScalar(baseHaloOuter);
   const hit = new THREE.Mesh(new THREE.SphereGeometry(moon ? 0.15 : 0.08, 8, 8), new THREE.MeshBasicMaterial({ visible: false }));
   hit.userData.index = it.index;
   hitTargets.push(hit);
-  group.add(body, halo, hit);
 
+  let lagPivot = null, lag = null, gem = null, beacon = null;
   if (moon) {
+    // Satellites: a dark glassy sphere that takes the sun's highlight, tinted
+    // by its own colour glow.
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(0.07, 48, 48),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.28, metalness: 0.45, emissive: color, emissiveIntensity: 0.3 })
+    );
+    halo.position.set(0, 0, 0);
+    group.add(body, halo, hit);
     group.position.copy(latLon(0, it.angle, RING_R));
-    ringPivot.add(group);
+    // Each satellite hangs on its own pivot so it can trail the globe's spin
+    // on a springy delay instead of rotating rigidly with it (frame loop below).
+    lagPivot = new THREE.Group();
+    lagPivot.add(group);
+    scene.add(lagPivot);
+    lag = { yaw, vel: 0, k: 12 + (it.index % 4) * 3.5 };
   } else {
-    group.position.copy(latLon(it.lat, it.lon, 1.03));
-    globe.add(new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([latLon(it.lat, it.lon, 1.0), latLon(it.lat, it.lon, 1.03)]),
-      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.8 })
-    ));
+    // Dataset pin: a faceted gem hovering on a needle above a beacon ring
+    // painted on the surface. The pin's frame points its +z along the local
+    // normal, so it sits on the terrain whatever the latitude.
+    const normal = latLon(it.lat, it.lon, 1).normalize();
+    group.position.copy(latLon(it.lat, it.lon, 1));
+    group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+
+    gem = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.026),
+      new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.5, flatShading: true })
+    );
+    gem.position.set(0, 0, 0.062);
+
+    beacon = new THREE.Mesh(
+      new THREE.RingGeometry(0.022, 0.027, 32),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false })
+    );
+    beacon.position.set(0, 0, 0.0015);
+
+    const stem = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0.002), new THREE.Vector3(0, 0, 0.055)]),
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.7 })
+    );
+
+    halo.position.set(0, 0, 0.062);
+    hit.position.set(0, 0, 0.05);
+    group.add(gem, beacon, stem, halo, hit);
     globe.add(group);
   }
 
@@ -884,7 +1095,7 @@ const markers = all.map((it) => {
   tag.textContent = it.title;
   tag.style.setProperty("--label-color", it.color);
   labelsEl.appendChild(tag);
-  return { it, group, halo, baseHalo, tag };
+  return { it, group, halo, haloInner, haloOuter, baseHalo, baseHaloOuter, tag, lagPivot, lag, gem, beacon };
 });
 
 /* ---------- size ---------- */
@@ -985,22 +1196,43 @@ function frame(now) {
   ringPivot.rotation.set(RING_TILT, yaw, 0);
   clouds.rotation.y += dt * 0.012;
 
-  // Camera: pull in when something is open, and keep it clear of the panel.
+  // Satellites trail the spin on a lightly-damped spring: they lag behind a
+  // fast spin, overshoot a touch when it stops and settle back. Frozen when
+  // the Stop motion setting is on.
+  markers.forEach((m) => {
+    if (!m.lag) return;
+    if (still()) { m.lag.yaw = yaw; m.lag.vel = 0; }
+    else {
+      m.lag.vel += (yaw - m.lag.yaw) * m.lag.k * dt;
+      m.lag.vel *= Math.exp(-5 * dt);
+      m.lag.yaw += m.lag.vel * dt;
+    }
+    m.lagPivot.rotation.set(RING_TILT, m.lag.yaw, 0);
+  });
+
+  // Camera: opening the panel slides the planet into the strip left of it so
+  // the full globe stays visible. The camera only ever eases OUT to fit
+  // (never closer than the resting baseDist), so there is no zoom-in.
   const wide = wrap.clientWidth > 900;
   const it = all[focused];
-  // With the wide panel open, fit the planet (or its orbit) into the space left of it.
   const tanF = Math.tan(17.5 * DEG);
   const panelShare = exploring && wide ? Math.min(0.7, detail.clientWidth / wrap.clientWidth) : 0;
   const fitR = it.ring ? 1.85 : 1.15;
-  const wantZ = exploring ? Math.max(it.ring ? 4.2 : 3.0, fitR / ((1 - panelShare) * tanF * camera.aspect)) : baseDist;
-  const wantX = exploring ? panelShare * wantZ * tanF * camera.aspect : (wrap.clientWidth > 1100 ? -0.5 : 0);
-  const wantY = exploring ? (it.ring ? -RING_R * Math.sin(RING_TILT) : 0) : -0.12;
+  const wantZ = panelShare > 0
+    ? Math.max(baseDist, fitR / ((1 - panelShare) * tanF * camera.aspect))
+    : baseDist;
+  const wantX = panelShare > 0
+    ? panelShare * wantZ * tanF * camera.aspect
+    : (wrap.clientWidth > 1100 ? -0.5 : 0);
+  const wantY = -0.12;
   const ck = still() ? 1 : Math.min(1, dt * 3);
   cam.z += (wantZ - cam.z) * ck;
   cam.x += (wantX - cam.x) * ck;
   cam.y += (wantY - cam.y) * ck;
   camera.position.set(cam.x, cam.y, cam.z);
   camera.lookAt(cam.x, cam.y, 0);
+  camera.updateMatrixWorld();
+  atmoCenter.set(0, 0, 0).applyMatrix4(camera.matrixWorldInverse);   // for the atmosphere's impact parameter
 
   // Whatever faces you becomes the choice: a dataset or a moon.
   camDir.set(0, 0, 1);
@@ -1019,11 +1251,30 @@ function frame(now) {
   }
 
   const pulse = still() ? 1 : 1 + Math.sin(now / 320) * 0.18;
+  // Small life signs, all frozen by the Stop motion setting.
+  if (!still()) {
+    starMats.forEach((s) => { s.mat.opacity = s.base * (0.82 + 0.18 * Math.sin(now / 1000 * s.speed + s.phase)); });
+    sunSprite.material.opacity = 0.8 + Math.sin(now / 900) * 0.12;
+  }
   const W = wrap.clientWidth, H = wrap.clientHeight;
   markers.forEach((m) => {
     const on = m.it.index === focused;
-    m.halo.scale.setScalar(on ? m.baseHalo * 1.9 * pulse : m.baseHalo);
-    m.halo.material.opacity = on ? 1 : 0.75;
+    m.haloInner.scale.setScalar(on ? m.baseHalo * 1.45 * pulse : m.baseHalo);
+    m.haloInner.material.opacity = on ? 1 : 0.8;
+    m.haloOuter.scale.setScalar(on ? m.baseHaloOuter * 1.35 * pulse : m.baseHaloOuter);
+    m.haloOuter.material.opacity = on ? 0.55 : 0.32;
+
+    // Faceted gems twirl slowly on their needles and bob a hair; the chosen
+    // one twirls faster while its beacon ring breathes. All frozen by Stop
+    // motion, like the rest of the scene.
+    if (m.gem) {
+      if (!still()) {
+        m.gem.rotation.z += dt * (on ? 1.7 : 0.55);
+        m.gem.position.z = 0.062 + Math.sin(now / 620 + m.it.index * 1.7) * 0.006;
+      }
+      m.beacon.scale.setScalar(on ? (still() ? 1.12 : 1 + Math.sin(now / 400) * 0.18) : 1);
+      m.beacon.material.opacity = on ? 0.75 : 0.4;
+    }
 
     // Name tags. Hidden when behind the planet or while a panel is open.
     m.group.getWorldPosition(tmp);

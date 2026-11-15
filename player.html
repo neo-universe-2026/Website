@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Earth Information Jukebox</title>
   <meta name="description" content="Listen to NASA's Earth science visualizations. Each video of our changing planet is turned into sound, so blind and low-vision listeners can explore the data too." />
-  <meta name="theme-color" content="#102331" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23102331'/%3E%3Cpath d='M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3' fill='none' stroke='%23F4A340' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <meta name="theme-color" content="#0a0a0b" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%230a0a0b'/%3E%3Cpath d='M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3' fill='none' stroke='%23F4A340' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -40,20 +40,31 @@
 
   <main id="top">
     <section id="player" class="player" aria-labelledby="page-title">
-      <div class="intro">
+      <div class="intro rise">
+        <p class="badge">NASA Space Apps Challenge 2026</p>
         <h1 id="page-title">Hear our planet change</h1>
         <p>NASA's Earth visualizations, turned into sound. Pick a track, press play, and listen to city lights, ocean currents, lightning and forests.</p>
       </div>
 
       <div class="stage">
-        <div class="screen" id="screen" tabindex="0" role="group" aria-roledescription="video player" aria-label="Video. Arrow keys seek and change volume." aria-describedby="screen-help">
+        <div class="screen rise rise-1" id="screen" tabindex="0" role="group" aria-roledescription="video player" aria-label="Video. Arrow keys seek and change volume." aria-describedby="screen-help">
           <video id="video" playsinline preload="metadata" aria-hidden="true"></video>
           <canvas id="horizon" class="horizon" aria-hidden="true"></canvas>
+          <!-- Custom player: centre play button and progress bar -->
+          <button type="button" id="overlay-play" class="vp-overlay" aria-keyshortcuts="Space K">
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-play"><path d="M7 4v16l13-8z"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-pause"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+            <span class="visually-hidden">Play or pause</span>
+          </button>
+          <div class="vp-bar" role="group" aria-label="Video progress">
+            <input type="range" id="overlay-seek" min="0" max="100" step="0.1" value="0" aria-label="Video position" aria-valuetext="0 seconds of 0 seconds" />
+            <span class="vp-time" id="overlay-time">0:00 / 0:00</span>
+          </div>
           <p class="screen-msg" id="screen-msg" hidden></p>
           <p class="visually-hidden" id="screen-help">Space plays or pauses. Left and right arrows jump 5 seconds. Up and down arrows change volume.</p>
         </div>
 
-        <div class="deck" aria-labelledby="now-title">
+        <div class="deck rise rise-2" aria-labelledby="now-title">
           <p class="position" id="track-position">Track 1 of 10</p>
           <h2 id="now-title" class="now-title">Loading tracks</h2>
 
@@ -111,13 +122,15 @@
       </section>
     </section>
 
-    <section id="tracks" class="tracks" aria-labelledby="tracks-heading">
+    <section id="tracks" class="tracks dot-grid" aria-labelledby="tracks-heading">
+      <p class="eyebrow">Track library</p>
       <h2 id="tracks-heading">All tracks</h2>
       <p class="section-lede">Every Earth video from the Space Apps challenge resources. Use <strong>Replace</strong> to swap in your own video or soundtrack at any time.</p>
       <ol id="track-list" class="track-list"></ol>
     </section>
 
-    <section id="how" class="how" aria-labelledby="how-heading">
+    <section id="how" class="how dot-grid" aria-labelledby="how-heading">
+      <p class="eyebrow">Sonification engine</p>
       <h2 id="how-heading">How pictures become sound</h2>
       <p class="section-lede">The Sonificator engine samples each video frame on a coarse grid and writes the soundtrack on the fly. Here is the mapping it uses.</p>
       <dl class="mapping">
@@ -141,6 +154,7 @@
     </section>
 
     <section id="quiz" class="quiz" aria-labelledby="quiz-heading">
+      <p class="eyebrow">Self check</p>
       <h2 id="quiz-heading">Quick listening quiz</h2>
       <p class="section-lede">Three questions about how the data sounds.</p>
       <form id="quiz-form" novalidate></form>
@@ -148,6 +162,7 @@
     </section>
 
     <section id="keys" class="keys" aria-labelledby="keys-heading">
+      <p class="eyebrow">Shortcuts</p>
       <h2 id="keys-heading">Keyboard shortcuts</h2>
       <table>
         <caption class="visually-hidden">Keyboard shortcuts for the player</caption>
@@ -205,6 +220,7 @@
   <div id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
 
   <script src="tracks.js"></script>
+  <script src="video-player.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

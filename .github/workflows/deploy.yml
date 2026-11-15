@@ -55,8 +55,34 @@ jobs:
           wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm \
             --target web --out-dir wasm/pkg --out-name sonificator_wasm
 
+      # Restore/save split so the 1.2 GB of SVS originals can be dropped from
+      # the workspace before the Pages artifact is uploaded (1 GB artefact limit).
+      - name: Restore SVS video cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/svs-src
+          key: svs-videos-v1
+          restore-keys: svs-videos-
+
+      - name: Fetch and transcode dataset videos
+        run: bash scripts/fetch-videos.sh
+
+      - name: Save SVS video cache
+        if: always()
+        continue-on-error: true   # save fails softly when the key already exists
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/svs-src
+          key: svs-videos-v1
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
+      # Only the site itself may be uploaded: cargo build artifacts and the
+      # video source cache are too large for the 1 GB Pages artefact limit,
+      # and the generated videos/*.mp4 stay.
+      - name: Strip build artifacts from upload
+        run: rm -rf .cache wasm/target sonificator
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
