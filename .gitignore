@@ -9,8 +9,9 @@ wasm/target/
 # Local server cache
 .cache/
 
-# Video files (large, keep in separate storage) -- except the default CO2
-# track, which the site sonifies and GitHub Pages must serve.
+# Dataset videos are downloaded by scripts/fetch-videos.sh at build/dev time
+# (NASA's servers don't send CORS headers, so the sonificator needs local
+# copies). co2.mp4 stays committed as the ready-to-sonify fallback.
 videos/*
 !videos/co2.mp4
 

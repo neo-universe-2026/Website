@@ -419,7 +419,7 @@ $("detail-play").addEventListener("click", () => {
   if (videoPlaying) { stopVideo(); announce("Paused"); return; }
   dVideo.play().catch(() => {});
   setVideoPlaying(true);
-  if (dVideo.readyState < 3) $("detail-status").textContent = "Loading video from NASA…";
+  if (dVideo.readyState < 3) $("detail-status").textContent = "Loading video…";
   announce(`Playing video: ${panelItem.title}`);
 });
 // The overlay play button (on the video itself) drives the same logic.
@@ -432,7 +432,7 @@ dVideo.addEventListener("timeupdate", syncOverlay);
 dVideo.addEventListener("seeked", syncOverlay);
 dVideo.addEventListener("loadedmetadata", syncOverlay);
 dVideo.addEventListener("playing", () => { if (panelItem) $("detail-status").textContent = panelItem.videoHasSound ? "This one has NASA's own sound." : "The soundtrack is generated live from the video frames."; });
-dVideo.addEventListener("waiting", () => { if (videoPlaying) $("detail-status").textContent = "Loading video from NASA…"; });
+dVideo.addEventListener("waiting", () => { if (videoPlaying) $("detail-status").textContent = "Loading video…"; });
 dVideo.addEventListener("ended", () => { stopVideo(); syncOverlay(); announce("Video finished"); });
 dVideo.addEventListener("error", () => {
   if (!dVideo.getAttribute("src")) return;

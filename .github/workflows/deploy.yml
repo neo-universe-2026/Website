@@ -55,6 +55,15 @@ jobs:
           wasm-bindgen wasm/target/wasm32-unknown-unknown/release/sonificator_wasm.wasm \
             --target web --out-dir wasm/pkg --out-name sonificator_wasm
 
+      - name: Cache SVS video cache
+        uses: actions/cache@v4
+        with:
+          path: .cache/svs-src
+          key: svs-videos-v1
+
+      - name: Fetch and transcode dataset videos
+        run: bash scripts/fetch-videos.sh
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

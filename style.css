@@ -51,7 +51,7 @@ p { margin: 0 0 1em; max-width: 68ch; }
 strong { color: var(--text); }
 
 a { color: var(--text); text-decoration: none; text-underline-offset: .22em; text-decoration-thickness: 1.5px; }
-a:hover { color: #fff; text-decoration: underline; text-decoration-color: var(--line-strong); }
+a:hover { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); }
 
 code {
   font: .92em var(--mono); background: var(--surface-2);
@@ -91,8 +91,18 @@ hr { border: 0; border-top: 1px solid var(--line-soft); }
   background: var(--accent); box-shadow: 0 0 8px rgba(244, 163, 64, .8);
 }
 .eyebrow {
-  font: 500 .72rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  color: var(--muted); margin: 0 0 .6rem;
+  font: 500 .72rem/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent); margin: 0 0 .5rem;
+}
+/* Subtle blueprint dots behind a section, faded from the top, like the
+   backdrops on vercel.com. Painted under the section's own content. */
+main > section.dot-grid { position: relative; }
+main > section.dot-grid::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(rgba(163, 163, 171, .13) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 30%, transparent 78%);
 }
 
 /* ---------- skip links ---------- */
@@ -343,11 +353,17 @@ input[type="range"]:hover::-webkit-slider-thumb, input[type="range"]:focus-visib
 }
 
 /* ---------- how it sounds ---------- */
-.mapping { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 3rem; margin: 2rem 0 0; }
-@media (max-width: 760px) { .mapping { grid-template-columns: 1fr; } }
-.mapping div { padding: 1.2rem 0; border-top: 1px solid var(--line); }
-.mapping dt { font: 600 1.12rem var(--display); letter-spacing: -.015em; margin-bottom: .3rem; }
+/* The signature hairline grid: cells separated by the border colour itself. */
+.mapping {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden; margin: 2rem 0 0;
+}
+.mapping div { padding: 1.5rem 1.7rem; margin: 0; background: var(--bg-deep); transition: background-color .15s, box-shadow .15s; }
+.mapping div:hover { background: var(--surface); box-shadow: inset 0 1px 0 rgba(244, 163, 64, .3); }
+.mapping dt { font: 600 1.02rem var(--sans); letter-spacing: -.015em; margin-bottom: .35rem; color: var(--accent); }
 .mapping dd { margin: 0; color: var(--muted); }
+@media (max-width: 760px) { .mapping { grid-template-columns: 1fr; } }
 
 /* ---------- quiz ---------- */
 .quiz fieldset {
@@ -355,6 +371,7 @@ input[type="range"]:hover::-webkit-slider-thumb, input[type="range"]:focus-visib
   max-width: 46rem; background: var(--surface);
 }
 .quiz legend { font: 600 1rem var(--display); letter-spacing: -.01em; padding: 0 .4rem; }
+.quiz fieldset:hover { border-color: var(--line-strong); }
 .quiz .choice { display: flex; align-items: center; gap: .7rem; min-height: 44px; cursor: pointer; }
 .quiz .choice:hover { color: var(--text); }
 .quiz input[type="radio"] { width: 1.15rem; height: 1.15rem; accent-color: var(--accent); }

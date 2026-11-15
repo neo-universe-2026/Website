@@ -220,21 +220,24 @@ html.large-text { font-size: 125%; }
 .chooser, .globe-intro { transition: opacity .3s; }
 .is-exploring .chooser, .is-exploring .globe-intro { opacity: 0; }
 
-/* Dataset list */
-.globe-list { background: transparent; }
-.dataset-list { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0 2rem; }
-.dataset-list li { border-top: 1px solid var(--line-soft); }
-.dataset-list button {
-  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 14px 1fr; gap: .2rem .8rem;
-  width: 100%; padding: 1rem .5rem; min-height: 44px; border-radius: var(--radius-sm);
-  transition: background-color .15s;
+/* Dataset list: Vercel-style hairline grid of cells. */
+.dataset-list {
+  list-style: none; padding: 0; margin: 1.5rem 0 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 1px; background: var(--line); border: 1px solid var(--line);
+  border-radius: var(--radius-lg); overflow: hidden;
 }
-.dataset-list button:hover { background: var(--surface); }
-.dataset-list button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.dataset-list li { background: var(--bg-deep); min-width: 0; transition: background-color .15s, box-shadow .15s; }
+.dataset-list li:hover { background: var(--surface); box-shadow: inset 0 1px 0 rgba(244, 163, 64, .3); }
+.dataset-list button {
+  all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 12px 1fr; gap: .2rem .7rem;
+  width: 100%; padding: 1rem 1.1rem; min-height: 60px;
+}
+.dataset-list button:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-radius: 0; }
 .dataset-list .dot { width: 10px; height: 10px; border-radius: 50%; margin-top: .5rem; box-shadow: 0 0 10px currentColor; background: currentColor; }
-.dataset-list .name { font: 600 1rem var(--display); letter-spacing: -.01em; }
+.dataset-list .name { font: 600 .98rem var(--display); letter-spacing: -.01em; }
 .dataset-list button:hover .name { color: var(--accent); }
-.dataset-list .where { grid-column: 2; color: var(--muted); font-size: .9rem; }
+.dataset-list .where { grid-column: 2; color: var(--muted); font-size: .85rem; }
 
 /* ---------- the "click into it" panel ---------- */
 .detail {

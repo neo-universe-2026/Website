@@ -76,7 +76,8 @@
       </div>
     </section>
 
-    <section id="everything" class="globe-list" aria-labelledby="everything-heading">
+    <section id="everything" class="globe-list dot-grid" aria-labelledby="everything-heading">
+      <p class="eyebrow">Browse</p>
       <h2 id="everything-heading">Everything on the globe</h2>
       <p class="section-lede">The same choices as a list, for anyone who would rather not spin.</p>
       <div class="everything-cols">
@@ -220,7 +221,7 @@
           <div><dt>The video picks its key</dt><dd>The first strongly coloured frame sets a musical fingerprint: its hue and horizontal position choose one of twelve keys and one of three chord progressions. Everything plays in a major pentatonic scale, so no note ever clashes with the pad.</dd></div>
           <div><dt>Movement drives monochrome</dt><dd>For videos with almost no colour, such as white currents on dark ocean, the engine falls back on differences between consecutive frames: moving brightness still drives the energy, pan and spread.</dd></div>
         </dl>
-        <p>One honest limit: the engine reads the pixels of videos served from this site, but a browser will not let it read pixels of videos from another domain. Those NASA-linked videos play silently unless you swap in a local copy with <strong>Replace this video</strong>. The meter under each dataset shows the engine's readings while a video plays.</p>
+        <p>One honest limit: a browser only lets the engine read the pixels of videos served from this site, so the site fetches and transcodes NASA's videos into its own <code>videos/</code> folder at build time. If you replace a video with a link to another domain, the engine can't read its frames and the soundtrack stays quiet. The meter under each dataset shows the engine's readings while a video plays.</p>
       </div>
 
       <!-- Topic: quiz -->

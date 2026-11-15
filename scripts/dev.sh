@@ -44,5 +44,12 @@ else
   exit 1
 fi
 
+# The sonificator can only read frames of same-origin videos. Fetch the local
+# copies when missing, but never block the dev server if it can't run here.
+if ! bash scripts/fetch-videos.sh; then
+  echo "warning: could not fetch dataset videos (needs curl + ffmpeg)." >&2
+  echo "         NASA-linked tracks will sonify only after a manual fetch." >&2
+fi
+
 echo "== Serving on http://localhost:$PORT (Ctrl-C to stop) =="
 exec "${SERVER[@]}" -p "$PORT" -c-1

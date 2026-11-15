@@ -29,19 +29,18 @@ window.JUKEBOX_TRACKS = [
   {
     id: "night-lights",
     title: "Night Lights, 2012 to 2023",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005313/nightlights_flat_series_and_change_wZooms_13_EIC_2160p30_h265.mp4",
+    video: "videos/night-lights.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005313/nightlights_flat_series_and_change_wZooms_13_EIC.02599_print.jpg",
     soundtrack: null,
     videoHasSound: false,
     description: "A flat world map at night. City lights glow as yearly averages from 2012 to 2023. The lights then fade to show the change: purple where there is more light than before, orange where there is less. Zoomed views pop out over India, Ukraine, Western Europe and the Eastern Mediterranean.",
     listenFor: "Brighter, denser city light raises the music's energy, tempo and density; the dark ocean falls back to a slow, sparse drift.",
-    source: "https://svs.gsfc.nasa.gov/5313/",
-    note: "This file uses the H.265 format, which some browsers cannot play. If it stays blank, replace it with your own copy."
+    source: "https://svs.gsfc.nasa.gov/5313/"
   },
   {
     id: "sea-surface",
     title: "Sea Surface Currents and Temperature",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/ecco2_sst_flow.webmhd.webm",
+    video: "videos/sea-surface.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/flat_global_ecco2_2028x1024.25000.jpg",
     soundtrack: null,
     videoHasSound: false,
@@ -52,7 +51,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "aerosols",
     title: "GEOS Aerosols",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005552/Aerosols_RotatingEarth_3840x2160.mp4",
+    video: "videos/aerosols.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005669/Aerosols_2025-08-19T20_00_00_1920x1080.png",
     soundtrack: null,
     videoHasSound: false,
@@ -64,7 +63,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "air-quality",
     title: "Air Quality Model Runs",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005533/EIC_AirQuality_Preview_3840x1080.mp4",
+    video: "videos/air-quality.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005533/AirQuality_Sphere_1920x1080_0000.png",
     soundtrack: null,
     videoHasSound: false,
@@ -75,14 +74,13 @@ window.JUKEBOX_TRACKS = [
   {
     id: "perpetual-ocean",
     title: "Perpetual Ocean 2: Western Boundary Currents",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005400/a005425/perpetual_ocean2_CLOSE_093_clean_noDate_1080p30.mp4",
+    video: "videos/perpetual-ocean.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005400/a005425/perpetual_ocean2_CLOSE_093_clean_noDate_1080p_carousel.jpg",
     soundtrack: null,
     videoHasSound: false,
     description: "A rotating globe of white ocean currents. The camera zooms into the Kuroshio Current near Japan, crosses the Indian Ocean to the Agulhas Current off South Africa, then reaches the Gulf Stream. Currents deeper than 600 metres glow blue and cyan.",
     listenFor: "Water on the move. The white currentstreaks drive the tempo through motion, and the fast boundary currents keep the music flowing while calm ocean relaxes it.",
     source: "https://svs.gsfc.nasa.gov/5425/",
-    note: "Large file (about 1.3 GB). It streams, but may be slow to start."
   },
   {
     id: "co2",
@@ -98,7 +96,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "lightning",
     title: "Lightning Seen from the Space Station, 2017 to 2023",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_sphere_07312023.mp4",
+    video: "videos/lightning.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_preview.jpg",
     soundtrack: null,
     videoHasSound: false,
@@ -109,7 +107,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "atmospheric-river",
     title: "Atmospheric River in 3D",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_river_HD.webm",
+    video: "videos/atmospheric-river.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_rivers_narrated_4k.00090_print.jpg",
     soundtrack: null,
     videoHasSound: false,
@@ -120,7 +118,7 @@ window.JUKEBOX_TRACKS = [
   {
     id: "forest-height",
     title: "GEDI Forest Height",
-    video: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004950/GEDI_global_w_colorbar_1080p60.mp4",
+    video: "videos/forest-height.mp4",
     poster: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004950/GEDI_global_w_colorbar_0900_print.jpg",
     soundtrack: null,
     videoHasSound: false,
