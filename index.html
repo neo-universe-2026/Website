@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Earth Information Jukebox</title>
+  <meta name="description" content="Spin a 3D Earth to explore NASA's Earth science visualizations. Each dataset, and everything about the project, orbits the globe." />
+  <meta name="theme-color" content="#071420" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23102331'/%3E%3Cpath d='M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3' fill='none' stroke='%23F4A340' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="globe.css" />
+</head>
+<body class="globe-page">
+  <nav class="skip-links" aria-label="Skip links">
+    <a href="#explore-button">Skip to Open</a>
+    <a href="#next-data">Skip to Next</a>
+    <a href="#everything">Skip to list of everything on the globe</a>
+    <a href="#a11y-button">Skip to Accessibility settings</a>
+  </nav>
+
+  <header class="site-header">
+    <a class="wordmark" href="index.html" aria-label="Earth Information Jukebox, home">
+      <svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 19c4-6 6 4 10-2s6 6 10-1 4 3 4 3" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/></svg>
+      <span>Earth Information Jukebox</span>
+    </a>
+    <!-- These turn the globe to a topic and open it -->
+    <nav aria-label="Topics">
+      <ul id="topic-nav"></ul>
+    </nav>
+  </header>
+
+  <!-- Always-available Accessibility button on the side of the screen -->
+  <button type="button" id="a11y-button" class="a11y-tab" aria-haspopup="dialog" aria-keyshortcuts="Alt+A">
+    <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="4.2" r="2.2"/><path d="M4 7.5c2.6.8 5.3 1.2 8 1.2s5.4-.4 8-1.2l.5 1.9c-2 .7-4.1 1.1-6.2 1.3V14l2.4 7.2-1.9.6L12.5 15h-1l-2.3 6.8-1.9-.6L9.7 14v-3.3c-2.1-.2-4.2-.6-6.2-1.3z"/></svg>
+    <span>Accessibility</span>
+  </button>
+
+  <main>
+    <section class="globe-stage" aria-labelledby="globe-title">
+      <canvas id="wave-bg" class="wave-bg" aria-hidden="true"></canvas>
+      <div class="globe-intro">
+        <h1 id="globe-title">Spin the planet</h1>
+        <p>Glowing points on Earth are NASA datasets. The moons in orbit are everything else about the project. Whatever faces you is your choice.</p>
+        <button type="button" id="spin-toggle" class="btn btn-quiet">Pause spinning</button>
+      </div>
+
+      <div id="globe-wrap" class="globe-wrap" tabindex="0" role="group" aria-roledescription="3D globe"
+           aria-label="Globe" aria-describedby="globe-help">
+        <canvas id="globe-canvas" aria-hidden="true"></canvas>
+        <div id="globe-labels" aria-hidden="true"></div>
+        <p id="globe-fallback" class="globe-fallback" hidden>The 3D globe can't run in this browser. Use the buttons below or the list further down to choose.</p>
+        <p id="globe-help" class="visually-hidden">Left and right arrows turn to the previous or next choice. Enter opens the one facing you.</p>
+      </div>
+
+      <div class="chooser" role="group" aria-label="Chooser">
+        <button type="button" id="prev-data" class="btn btn-quiet chooser-arrow" aria-keyshortcuts="ArrowLeft">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <div class="chooser-card">
+          <p class="chooser-count" id="data-count"></p>
+          <p class="chooser-title" id="data-title">Loading</p>
+          <p class="chooser-place" id="data-place"></p>
+          <button type="button" id="explore-button" class="btn btn-play" aria-keyshortcuts="Enter">
+            <span id="explore-verb">Explore</span><span class="visually-hidden" id="explore-name"></span>
+          </button>
+        </div>
+        <button type="button" id="next-data" class="btn btn-quiet chooser-arrow" aria-keyshortcuts="ArrowRight">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="everything" class="globe-list" aria-labelledby="everything-heading">
+      <h2 id="everything-heading">Everything on the globe</h2>
+      <p class="section-lede">The same choices as a list, for anyone who would rather not spin.</p>
+      <div class="everything-cols">
+        <div>
+          <h3>Earth datasets</h3>
+          <ul id="dataset-list" class="dataset-list"></ul>
+        </div>
+        <div>
+          <h3>In orbit</h3>
+          <ul id="topic-list" class="dataset-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Visualizations by <a href="https://svs.gsfc.nasa.gov/gallery/earth-information-center/">NASA's Scientific Visualization Studio</a>. Earth textures from the three.js project.</p>
+    <p>A NASA Space Apps Challenge 2026 project. Not endorsed by NASA.</p>
+  </footer>
+
+  <!-- The "click into it" panel. One panel; it shows a dataset or a topic. -->
+  <dialog id="detail" class="detail" aria-labelledby="detail-title">
+    <div class="detail-inner">
+      <button type="button" id="detail-close" class="btn btn-quiet detail-close">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2.5"/></svg>
+        Back to globe
+      </button>
+
+      <p class="detail-place" id="detail-place"></p>
+      <h2 id="detail-title" tabindex="-1"></h2>
+
+      <!-- Dataset view -->
+      <div id="view-dataset" class="view" hidden>
+        <div class="detail-media">
+          <video id="detail-video" playsinline preload="none" aria-hidden="true"></video>
+          <div class="detail-media-bar">
+            <button type="button" id="detail-play" class="btn btn-play">
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-play"><path d="M7 4v16l13-8z"/></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-pause"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
+              <span id="detail-play-text">Play video</span>
+            </button>
+            <p class="detail-sound" id="detail-status">Sound is coming soon.</p>
+          </div>
+          <p class="detail-video-msg" id="detail-video-msg" hidden></p>
+        </div>
+
+        <div class="detail-cols">
+          <div>
+            <h3>What you're seeing</h3>
+            <p id="detail-see"></p>
+
+            <h3>The science</h3>
+            <div id="detail-science"></div>
+          </div>
+          <div>
+            <h3>How it will sound</h3>
+            <dl id="detail-sound" class="detail-pairs"></dl>
+
+            <h3>What to listen for</h3>
+            <p id="detail-listen"></p>
+
+            <h3>Data facts</h3>
+            <dl id="detail-facts" class="detail-facts"></dl>
+          </div>
+        </div>
+
+        <p class="detail-note" id="detail-note" hidden></p>
+
+        <details class="replace" id="replace-box">
+          <summary>Replace this video</summary>
+          <p>Paste a link or path, or choose a file. Links are remembered in this browser; files last until you reload. To change it for good, edit <code>tracks.js</code>.</p>
+          <label for="replace-url">Video link or path (.mp4 or .webm)</label>
+          <input type="text" id="replace-url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="videos/my-video.mp4" />
+          <label for="replace-file">Or choose a video file</label>
+          <input type="file" id="replace-file" accept="video/*" />
+          <div class="dialog-actions">
+            <button type="button" id="replace-save" class="btn btn-play">Use this video</button>
+            <button type="button" id="replace-reset" class="btn btn-quiet">Restore NASA's video</button>
+          </div>
+        </details>
+
+        <p class="detail-links">
+          <a id="detail-source" href="#" target="_blank" rel="noopener">NASA source page<span class="visually-hidden"> (opens in a new tab)</span></a>
+        </p>
+      </div>
+
+      <!-- Topic: how it sounds -->
+      <div id="view-how" class="view" hidden>
+        <p>The jukebox reads each frame of a video and turns what it sees into music. Sound is still being built; this is the plan.</p>
+        <dl class="detail-pairs">
+          <div><dt>Colour becomes harmony</dt><dd>Warm colours lean towards bright, major chords. Cool colours lean towards darker, minor ones.</dd></div>
+          <div><dt>Brightness becomes pitch</dt><dd>Bright areas play higher notes. Dark areas play lower notes.</dd></div>
+          <div><dt>Busy areas become rhythm</dt><dd>Crowded, detailed parts of the picture play faster rhythms. Calm, empty parts slow down.</dd></div>
+          <div><dt>Change over time becomes a story</dt><dd>As the video moves on, the music changes with it, so you hear the planet change.</dd></div>
+          <div><dt>Separate layers become separate instruments</dt><dd>When a video shows several things at once, such as smoke, dust and sea salt, each can get its own instrument.</dd></div>
+        </dl>
+        <p>Each dataset on the globe has its own "How it will sound" section with the plan for that video.</p>
+      </div>
+
+      <!-- Topic: quiz -->
+      <div id="view-quiz" class="view quiz" hidden>
+        <p>Three questions about how the data will sound.</p>
+        <form id="quiz-form" novalidate></form>
+        <p id="quiz-score" class="quiz-score"></p>
+      </div>
+
+      <!-- Topic: about -->
+      <div id="view-about" class="view" hidden>
+        <h3>The challenge</h3>
+        <p>NASA's Earth Information Center makes striking visualizations of our changing planet: temperatures, ocean currents, forests, storms. Pictures alone leave out blind and low-vision people. The Earth Information Jukebox challenge asks teams to turn these visuals into sound, so everyone can explore the data.</p>
+        <h3>Our approach</h3>
+        <p>We start from NASA's own videos. Each one becomes a soundtrack, where colour, brightness and movement in the picture control harmony, pitch and rhythm. This site puts every dataset on a globe you can spin, and every page works with a screen reader and the keyboard.</p>
+        <h3>Sources</h3>
+        <ul>
+          <li><a href="https://www.spaceappschallenge.org/2026/challenges/the-earth-information-jukebox/?tab=resources">The challenge and its resources</a></li>
+          <li><a href="https://svs.gsfc.nasa.gov/gallery/earth-information-center/">NASA's Earth Information Center content database</a></li>
+          <li><a href="player.html">Simple list version of the site</a></li>
+        </ul>
+      </div>
+
+      <!-- Topic: all datasets -->
+      <div id="view-datasets" class="view" hidden>
+        <p>Every Earth video from the challenge resources. Open one to watch it, read about it, or replace its video.</p>
+        <ul id="all-datasets" class="dataset-list"></ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Accessibility pop-up: settings that change the page, plus working shortcuts -->
+  <dialog id="a11y" class="a11y" aria-labelledby="a11y-title">
+    <div class="a11y-head">
+      <h2 id="a11y-title" tabindex="-1">Accessibility</h2>
+      <button type="button" id="a11y-close" class="btn btn-quiet">Close<span class="visually-hidden"> accessibility settings</span></button>
+    </div>
+    <p class="a11y-lede">These settings change the page straight away and are remembered on this device.</p>
+
+    <h3>Settings</h3>
+    <div class="switches">
+      <label class="switch"><input type="checkbox" role="switch" data-setting="readAloud" />
+        <span><strong>Read aloud</strong><small>The site speaks choices and opened pages with your device's voice. Useful if you don't use a screen reader.</small></span></label>
+      <label class="switch"><input type="checkbox" role="switch" data-setting="announceSpin" />
+        <span><strong>Announce while spinning</strong><small>Read out each new dataset or topic as the globe turns by itself.</small></span></label>
+      <label class="switch"><input type="checkbox" role="switch" data-setting="stopMotion" />
+        <span><strong>Stop all motion</strong><small>Stops the spinning globe, the moving sound wave and other animations.</small></span></label>
+      <label class="switch"><input type="checkbox" role="switch" data-setting="largeText" />
+        <span><strong>Larger text</strong><small>Makes all text 25% bigger.</small></span></label>
+      <label class="switch"><input type="checkbox" role="switch" data-setting="highContrast" />
+        <span><strong>High contrast</strong><small>Brighter text, solid backgrounds and a quieter background.</small></span></label>
+      <label class="switch"><input type="checkbox" role="switch" data-setting="singleKeys" />
+        <span><strong>Single-key shortcuts</strong><small>Turn off if letter keys clash with your screen reader or voice control.</small></span></label>
+    </div>
+
+    <h3>Keyboard shortcuts</h3>
+    <table class="keys-table">
+      <caption class="visually-hidden">Keyboard shortcuts</caption>
+      <thead><tr><th scope="col">Key</th><th scope="col">What it does</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>Left</kbd> / <kbd>Right</kbd></td><td>Turn the globe to the previous or next choice</td></tr>
+        <tr><td><kbd>Enter</kbd> on the globe, or <kbd>O</kbd></td><td>Open the choice facing you</td></tr>
+        <tr><td><kbd>Escape</kbd></td><td>Close a panel or this pop-up</td></tr>
+        <tr><td><kbd>S</kbd></td><td>Pause or start spinning</td></tr>
+        <tr><td><kbd>W</kbd></td><td>Say what the globe is facing now</td></tr>
+        <tr><td><kbd>L</kbd></td><td>Jump to the list of everything</td></tr>
+        <tr><td><kbd>Alt</kbd> + <kbd>A</kbd>, or <kbd>?</kbd></td><td>Open this Accessibility pop-up</td></tr>
+      </tbody>
+    </table>
+    <p class="a11y-note">Letter shortcuts work when you are not typing in a box. Screen readers: switch to focus mode first (NVDA: <kbd>NVDA</kbd> + <kbd>Space</kbd>).</p>
+
+    <h3>Check your screen reader</h3>
+    <p>Press the button. You should hear a short message.</p>
+    <button type="button" id="a11y-test" class="btn btn-quiet">Test announcement</button>
+    <p id="a11y-test-result" class="a11y-note" hidden></p>
+
+    <h3>Moving around with a screen reader</h3>
+    <ul class="a11y-tips">
+      <li><kbd>H</kbd> jumps between headings; <kbd>D</kbd> (NVDA) or the rotor (VoiceOver) jumps between page areas.</li>
+      <li>Skip links at the very top go straight to Open, Next, the full list or this pop-up.</li>
+      <li>Everything on the globe is also in the plain list under it.</li>
+    </ul>
+  </dialog>
+
+  <div id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="tracks.js"></script>
+  <script src="globe-data.js"></script>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module" src="globe.js"></script>
+</body>
+</html>

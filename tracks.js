@@ -1,0 +1,142 @@
+/*
+  TRACK LIST: edit this file to change the videos on the site.
+
+  Each track is one { ... } block. To swap a video for good:
+    1. Put your file in  website/videos/  (e.g. website/videos/my-ocean.mp4)
+       or use any https:// link to an .mp4 / .webm file.
+    2. Change the track's  video:  line to  "videos/my-ocean.mp4"
+    3. Save and reload the page.
+
+  You can also swap a video from the website itself with the
+  "Replace video" button on each track. That change is saved in your
+  browser only (links are remembered; files you pick last until reload).
+
+  Fields:
+    title        Name read out by screen readers ("Play, <title>")
+    video        Path or https:// link to the video
+    poster       Still image shown before the video loads
+    soundtrack   Path to this track's generated audio (WAV/MP3/OGG).
+                 Leave null to use the placeholder demo soundtrack.
+    videoHasSound true if the video already has its own sound to play
+    description  What the video shows, in plain words (read aloud)
+    listenFor    What the sonification should make you hear
+    source       Where the data comes from
+*/
+
+window.JUKEBOX_PLACEHOLDER_SOUNDTRACK = "../demos/JukeboxDemo.wav";
+
+window.JUKEBOX_TRACKS = [
+  {
+    id: "night-lights",
+    title: "Night Lights, 2012 to 2023",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005313/nightlights_flat_series_and_change_wZooms_13_EIC_2160p30_h265.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005300/a005313/nightlights_flat_series_and_change_wZooms_13_EIC.02599_print.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A flat world map at night. City lights glow as yearly averages from 2012 to 2023. The lights then fade to show the change: purple where there is more light than before, orange where there is less. Zoomed views pop out over India, Ukraine, Western Europe and the Eastern Mediterranean.",
+    listenFor: "Bright cities against dark land. Brighter light should play louder or faster; regions that went dark should drop away.",
+    source: "https://svs.gsfc.nasa.gov/5313/",
+    note: "This file uses the H.265 format, which some browsers cannot play. If it stays blank, replace it with your own copy."
+  },
+  {
+    id: "sea-surface",
+    title: "Sea Surface Currents and Temperature",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/ecco2_sst_flow.webmhd.webm",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a003900/a003912/flat_global_ecco2_2028x1024.25000.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "Ocean currents swirl across a world map from March 2007 to March 2008. Each current is coloured by the water's temperature, from cold blues near the poles to warm reds and yellows near the equator.",
+    listenFor: "Continuous, flowing motion. Warm water and cold water should sound different, and the music should keep moving like the currents do.",
+    source: "https://svs.gsfc.nasa.gov/3912/"
+  },
+  {
+    id: "aerosols",
+    title: "GEOS Aerosols",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005552/Aerosols_RotatingEarth_3840x2160.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005600/a005669/Aerosols_2025-08-19T20_00_00_1920x1080.png",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A rotating Earth wrapped in drifting particles. Smoke and black carbon show as orange and red, sea salt as cyan, dust as magenta and sulfates as green.",
+    listenFor: "Layers. Each type of particle can be its own instrument, so smoke, dust and sea salt can be heard apart.",
+    source: "https://svs.gsfc.nasa.gov/5669/",
+    note: "The 2025 page listed by the challenge has still images only, so this video comes from NASA's related page svs.gsfc.nasa.gov/5552."
+  },
+  {
+    id: "air-quality",
+    title: "Air Quality Model Runs",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005533/EIC_AirQuality_Preview_3840x1080.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005500/a005533/AirQuality_Sphere_1920x1080_0000.png",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A wide view of air pollution forecasts from NASA's GEOS-CF model. Fine particles, ozone, carbon monoxide and nitrogen oxides spread and fade across the globe.",
+    listenFor: "Colour and crowding. The colour palette sets the harmony, and the more crowded the pollution, the busier the rhythm.",
+    source: "https://svs.gsfc.nasa.gov/5533/"
+  },
+  {
+    id: "perpetual-ocean",
+    title: "Perpetual Ocean 2: Western Boundary Currents",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005400/a005425/perpetual_ocean2_CLOSE_093_clean_noDate_1080p30.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005400/a005425/perpetual_ocean2_CLOSE_093_clean_noDate_1080p_carousel.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A rotating globe of white ocean currents. The camera zooms into the Kuroshio Current near Japan, crosses the Indian Ocean to the Agulhas Current off South Africa, then reaches the Gulf Stream. Currents deeper than 600 metres glow blue and cyan.",
+    listenFor: "Strong contrast between moving water and still water. Each camera move is a good place for the rhythm or key to change.",
+    source: "https://svs.gsfc.nasa.gov/5425/",
+    note: "Large file (about 1.3 GB). It streams, but may be slow to start."
+  },
+  {
+    id: "co2",
+    title: "DYAMOND Global Carbon Dioxide",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005196/dyamondPointCloud_3-29-2023a_dyamond_co2_anim_globe_zoom_1080p30.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005100/a005196/dyamondPointCloud_12-1-2023b_dyamond_co2_anim_globe_orbit_3x3Hyperwall.00200_print.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "Carbon dioxide drifts around the globe from January to March 2020, shown as glowing plumes. The camera zooms in on the eastern United States.",
+    listenFor: "Slow change over time. As carbon dioxide builds up, the music can grow denser or rise in pitch.",
+    source: "https://svs.gsfc.nasa.gov/5196/"
+  },
+  {
+    id: "lightning",
+    title: "Lightning Seen from the Space Station, 2017 to 2023",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_sphere_07312023.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a005000/a005011/iss_lightning_preview.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A globe flickers with lightning flashes detected by a sensor on the International Space Station, shown in a moving 10-day window from January 2017 to July 2023. Storms cluster over the tropics.",
+    listenFor: "Sudden flashes. Each burst of lightning can trigger a drum hit or a sharp sound.",
+    source: "https://svs.gsfc.nasa.gov/5011/"
+  },
+  {
+    id: "atmospheric-river",
+    title: "Atmospheric River in 3D",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_river_HD.webm",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004960/atmos_rivers_narrated_4k.00090_print.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A 3D view following a long, narrow band of water vapour, an atmospheric river, as it streams across the ocean and reaches land.",
+    listenFor: "How thick and wide the moisture is. A wider, denser river can sound fuller and more immersive.",
+    source: "https://svs.gsfc.nasa.gov/4960/"
+  },
+  {
+    id: "forest-height",
+    title: "GEDI Forest Height",
+    video: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004950/GEDI_global_w_colorbar_1080p60.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a000000/a004900/a004950/GEDI_global_w_colorbar_0900_print.jpg",
+    soundtrack: null,
+    videoHasSound: false,
+    description: "A global map of forest height measured by a laser on the International Space Station from April 2019 to April 2020. Brown and dark green mean shorter vegetation; bright green and white mean taller trees. Height is exaggerated so the differences show.",
+    listenFor: "Tall forests against short ones. Taller trees can sound higher or faster.",
+    source: "https://svs.gsfc.nasa.gov/4950/"
+  },
+  {
+    id: "caldwell-73",
+    title: "Reference: NASA Sonification of Caldwell 73",
+    video: "https://svs.gsfc.nasa.gov/vis/a010000/a013700/a013786/Caldwell73_2K_Final.mp4",
+    poster: "https://svs.gsfc.nasa.gov/vis/a010000/a013700/a013786/print.jpg",
+    soundtrack: null,
+    videoHasSound: true,
+    description: "A star cluster 40,000 light-years away. A radar line sweeps around the image. Stars farther from the centre play higher notes, and the whole image becomes the sound of a choir.",
+    listenFor: "This is NASA's own example of turning an image into sound. It already has its own audio, so it plays as it is.",
+    source: "https://svs.gsfc.nasa.gov/13786/"
+  }
+];
