@@ -47,6 +47,7 @@ fetch() { # <track-id> <source-url>
   fi
 
   echo "== fetching $id"
+  mkdir -p "$CACHE" "$(dirname "$out")"
   curl --silent --show-error --fail --retry 3 --continue-at - -o "$cached" "$url"
 
   echo "== transcoding $id"
