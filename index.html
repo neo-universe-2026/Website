@@ -117,9 +117,44 @@
               <svg aria-hidden="true" viewBox="0 0 24 24" class="icon-pause"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>
               <span id="detail-play-text">Play video</span>
             </button>
-            <p class="detail-sound" id="detail-status">Sound is coming soon.</p>
+            <p class="detail-sound" id="detail-status">The soundtrack is generated live from the video frames.</p>
           </div>
           <p class="detail-video-msg" id="detail-video-msg" hidden></p>
+        </div>
+
+        <div class="detail-stats">
+          <h3>What the sonificator sees</h3>
+          <p class="detail-sound" id="detail-stats-status">Play the video and the Sonificator's live readings appear here.</p>
+          <dl id="detail-stats" hidden>
+            <div class="stat">
+              <dt>Colour energy</dt>
+              <dd>
+                <span class="meter" id="stat-energy-meter" role="meter" aria-label="Colour energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="meter-fill" id="stat-energy-fill"></span></span>
+                <span class="stat-val" id="stat-energy-val" aria-hidden="true">0%</span>
+              </dd>
+            </div>
+            <div class="stat">
+              <dt>Left&ndash;right focus</dt>
+              <dd>
+                <span class="meter" id="stat-x-meter" role="meter" aria-label="Horizontal focus, left to right" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="meter-fill" id="stat-x-fill"></span></span>
+                <span class="stat-val" id="stat-x-val" aria-hidden="true">50%</span>
+              </dd>
+            </div>
+            <div class="stat">
+              <dt>Up&ndash;down focus</dt>
+              <dd>
+                <span class="meter" id="stat-y-meter" role="meter" aria-label="Vertical focus, top to bottom" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="meter-fill" id="stat-y-fill"></span></span>
+                <span class="stat-val" id="stat-y-val" aria-hidden="true">50%</span>
+              </dd>
+            </div>
+            <div class="stat">
+              <dt>Spread</dt>
+              <dd>
+                <span class="meter" id="stat-spread-meter" role="meter" aria-label="Spread of colour, clustered to dispersed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="meter-fill" id="stat-spread-fill"></span></span>
+                <span class="stat-val" id="stat-spread-val" aria-hidden="true">0%</span>
+              </dd>
+            </div>
+          </dl>
         </div>
 
         <div class="detail-cols">
@@ -131,7 +166,7 @@
             <div id="detail-science"></div>
           </div>
           <div>
-            <h3>How it will sound</h3>
+            <h3>How it sounds</h3>
             <dl id="detail-sound" class="detail-pairs"></dl>
 
             <h3>What to listen for</h3>
@@ -164,20 +199,22 @@
 
       <!-- Topic: how it sounds -->
       <div id="view-how" class="view" hidden>
-        <p>The jukebox reads each frame of a video and turns what it sees into music. Sound is still being built; this is the plan.</p>
+        <p>The Sonificator, our audio engine, samples each video frame on a coarse grid and writes the soundtrack on the fly: nothing is prerecorded, and the music starts when the video does. This is how it maps the picture to sound today.</p>
         <dl class="detail-pairs">
-          <div><dt>Colour becomes harmony</dt><dd>Warm colours lean towards bright, major chords. Cool colours lean towards darker, minor ones.</dd></div>
-          <div><dt>Brightness becomes pitch</dt><dd>Bright areas play higher notes. Dark areas play lower notes.</dd></div>
-          <div><dt>Busy areas become rhythm</dt><dd>Crowded, detailed parts of the picture play faster rhythms. Calm, empty parts slow down.</dd></div>
-          <div><dt>Change over time becomes a story</dt><dd>As the video moves on, the music changes with it, so you hear the planet change.</dd></div>
-          <div><dt>Separate layers become separate instruments</dt><dd>When a video shows several things at once, such as smoke, dust and sea salt, each can get its own instrument.</dd></div>
+          <div><dt>Colour becomes energy</dt><dd>The engine looks for coloured pixels of any hue (black, white and grey are ignored) and measures how strong they are. More colour means more musical energy: louder layers, a faster tempo between 68 and 96 beats per minute, and a denser groove.</dd></div>
+          <div><dt>Energy has three states</dt><dd>Low energy gives <strong>Sparse Drift</strong>: slow bass notes under a soft pad. Medium energy gives <strong>Flowing Groove</strong>: a syncopated bass and busier chords. High energy gives <strong>Intense Climax</strong>: driving bass, full chords and a faster melody.</dd></div>
+          <div><dt>Position becomes space and register</dt><dd>The centre of the coloured area steers the music. Left of centre pans to the left speaker, right of centre to the right. Colour low in the picture lifts the melody an octave, colour high in the picture sits in the base register, and in between lifts it a fifth.</dd></div>
+          <div><dt>Spread becomes arpeggio</dt><dd>Closely clustered colour keeps a sparse arpeggio. Widely scattered colour fills the arpeggio in up to every sixteenth note, with occasional octave jumps when it spreads even farther.</dd></div>
+          <div><dt>Warmth becomes timbre</dt><dd>How red versus blue the coloured areas are shifts the melody between warm second-harmonic tones and cooler, brighter ones.</dd></div>
+          <div><dt>The video picks its key</dt><dd>The first strongly coloured frame sets a musical fingerprint: its hue and horizontal position choose one of twelve keys and one of three chord progressions. Everything plays in a major pentatonic scale, so no note ever clashes with the pad.</dd></div>
+          <div><dt>Movement drives monochrome</dt><dd>For videos with almost no colour, such as white currents on dark ocean, the engine falls back on differences between consecutive frames: moving brightness still drives the energy, pan and spread.</dd></div>
         </dl>
-        <p>Each dataset on the globe has its own "How it will sound" section with the plan for that video.</p>
+        <p>One honest limit: the engine reads the pixels of videos served from this site, but a browser will not let it read pixels of videos from another domain. Those NASA-linked videos play silently unless you swap in a local copy with <strong>Replace this video</strong>. The meter under each dataset shows the engine's readings while a video plays.</p>
       </div>
 
       <!-- Topic: quiz -->
       <div id="view-quiz" class="view quiz" hidden>
-        <p>Three questions about how the data will sound.</p>
+        <p>Three questions about how the data sounds.</p>
         <form id="quiz-form" novalidate></form>
         <p id="quiz-score" class="quiz-score"></p>
       </div>
@@ -187,7 +224,7 @@
         <h3>The challenge</h3>
         <p>NASA's Earth Information Center makes striking visualizations of our changing planet: temperatures, ocean currents, forests, storms. Pictures alone leave out blind and low-vision people. The Earth Information Jukebox challenge asks teams to turn these visuals into sound, so everyone can explore the data.</p>
         <h3>Our approach</h3>
-        <p>We start from NASA's own videos. Each one becomes a soundtrack, where colour, brightness and movement in the picture control harmony, pitch and rhythm. This site puts every dataset on a globe you can spin, and every page works with a screen reader and the keyboard.</p>
+        <p>We start from NASA's own videos. Our Sonificator engine, written in Rust and compiled to WebAssembly, samples every frame, measures where colour, brightness and movement sit, and renders a pentatonic soundtrack live: colour energy sets the tempo and loudness, position sets the stereo pan and pitch register, spread sets the rhythm density, and the first strong frame sets the key. This site puts every dataset on a globe you can spin, and every page works with a screen reader and the keyboard.</p>
         <h3>Sources</h3>
         <ul>
           <li><a href="https://www.spaceappschallenge.org/2026/challenges/the-earth-information-jukebox/?tab=resources">The challenge and its resources</a></li>

@@ -523,22 +523,22 @@
   /* ---------------- quiz ---------------- */
   var QUIZ = [
     {
-      q: "In the lightning track, what should a sudden flash of lightning sound like?",
-      options: ["A long, slow chord", "A sharp hit, like a drum", "Silence"],
+      q: "In the lightning track, what does a sudden flash of lightning do to the soundtrack?",
+      options: ["Nothing, the music carries on", "The music suddenly grows louder and denser for a moment", "It mutes the soundtrack for a second"],
       answer: 1,
-      why: "Quick flashes suit short, punchy sounds, so each burst of lightning becomes a hit."
+      why: "A flash is a spike of bright colour on a dark globe. The engine's energy jumps, so the music swells in tempo and loudness, then relaxes."
     },
     {
-      q: "In the night lights track, how should brighter cities sound?",
-      options: ["Quieter", "Louder or faster", "Exactly the same as dark areas"],
+      q: "In the night lights track, how do brighter cities affect the music?",
+      options: ["Quieter", "Louder and denser", "Exactly the same as dark areas"],
       answer: 1,
-      why: "Light intensity maps to volume or tempo, so brighter places sound louder or busier."
+      why: "Coloured light raises the engine's colour energy, which lifts the volume, tempo and groove density. Dark ocean falls back to a sparse drift."
     },
     {
-      q: "In the forest height track, what do bright green and white mean?",
-      options: ["Taller trees", "Shorter plants", "Open water"],
+      q: "How does the Sonificator choose the key of a soundtrack?",
+      options: ["The colour and position of the first strong frame set it", "It is the same key for every video", "The location on the map sets it"],
       answer: 0,
-      why: "Bright green and white show the tallest forests; brown and dark green show shorter plants."
+      why: "The engine fingerprints the first strongly coloured frame: its hue and where the colour sits horizontally pick one of twelve keys and one of three chord progressions."
     }
   ];
   var quizResults = QUIZ.map(function () { return null; });

@@ -70,8 +70,11 @@ It also works on GitHub Pages: Settings > Pages > deploy from the `main` branch.
 - **Pause spinning** stops the globe. It starts paused if the device asks for
   reduced motion.
 - "Everything on the globe", under the globe, lists every choice without 3D.
-- The moving sound wave behind the planet is drawn in `globe.js` ("background"
-  section). It is decorative for now and can later follow the real soundtrack.
+- The moving sound wave behind the planet follows the Sonificator's live audio
+  output: its energy and horizontal colour focus pulse the wave.
+- While a dataset video plays, the Sonificator engine generates its soundtrack
+  from the video frames, and a meter under the video shows the engine's live
+  readings (colour energy, left-right and up-down focus, and spread).
 
 ## Accessibility pop-up
 
@@ -129,16 +132,25 @@ you reload. **Restore NASA's video** undoes it.
 - **Perpetual Ocean 2** (1.3 GB) and others stream from NASA and can be slow to
   start. The panel shows "Loading video from NASA…" while they buffer.
 - **Caldwell 73** is NASA's own sonification example. It orbits as a star and
-  is the only video with sound for now.
+  plays NASA's own soundtrack.
 
-## Sound (later)
+## Sound (Sonificator)
 
-Videos play silent for now. When the backend makes a soundtrack per dataset,
-add it to `tracks.js` (`soundtrack:` lines) and the globe panel can play it
-alongside the video. The flat `player.html` already shows how to keep a
-soundtrack in step with a video; its placeholder soundtrack path
-(`JUKEBOX_PLACEHOLDER_SOUNDTRACK` in `tracks.js`) points at the main project's
-`demos/JukeboxDemo.wav`, which is not in this repository.
+The Sonificator engine (Rust, compiled to WebAssembly) generates sound live
+while a video plays: it samples each frame and maps colour energy, position,
+spread and warmth onto a pentatonic soundtrack. See the **How pictures become
+sound** topic on the globe for the full mapping.
+
+A browser only lets the engine read the pixels of videos served from this
+site (such as `videos/co2.mp4`). NASA-hosted videos play quietly unless you
+replace them with a local copy, and the meter under the video tells you when
+that is the case. See the Sonificator Integration section above for building
+the WASM, and `sonificator/README.md` for the engine itself.
+
+The flat `player.html` predates the live engine and still plays a soundtrack
+file alongside the video if one is set (`soundtrack:` lines in `tracks.js`;
+its placeholder path `JUKEBOX_PLACEHOLDER_SOUNDTRACK` points at the main
+project's `demos/JukeboxDemo.wav`, which is not in this repository).
 
 ## Credits
 
