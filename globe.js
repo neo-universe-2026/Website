@@ -1210,16 +1210,21 @@ function frame(now) {
     m.lagPivot.rotation.set(RING_TILT, m.lag.yaw, 0);
   });
 
-  // Camera: pull in when something is open, and keep it clear of the panel.
+  // Camera: opening the panel slides the planet into the strip left of it so
+  // the full globe stays visible. The camera only ever eases OUT to fit
+  // (never closer than the resting baseDist), so there is no zoom-in.
   const wide = wrap.clientWidth > 900;
   const it = all[focused];
-  // With the wide panel open, fit the planet (or its orbit) into the space left of it.
   const tanF = Math.tan(17.5 * DEG);
   const panelShare = exploring && wide ? Math.min(0.7, detail.clientWidth / wrap.clientWidth) : 0;
   const fitR = it.ring ? 1.85 : 1.15;
-  const wantZ = exploring ? Math.max(it.ring ? 4.2 : 3.0, fitR / ((1 - panelShare) * tanF * camera.aspect)) : baseDist;
-  const wantX = exploring ? panelShare * wantZ * tanF * camera.aspect : (wrap.clientWidth > 1100 ? -0.5 : 0);
-  const wantY = exploring ? (it.ring ? -RING_R * Math.sin(RING_TILT) : 0) : -0.12;
+  const wantZ = panelShare > 0
+    ? Math.max(baseDist, fitR / ((1 - panelShare) * tanF * camera.aspect))
+    : baseDist;
+  const wantX = panelShare > 0
+    ? panelShare * wantZ * tanF * camera.aspect
+    : (wrap.clientWidth > 1100 ? -0.5 : 0);
+  const wantY = -0.12;
   const ck = still() ? 1 : Math.min(1, dt * 3);
   cam.z += (wantZ - cam.z) * ck;
   cam.x += (wantX - cam.x) * ck;
