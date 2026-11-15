@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+target/
+wasm/pkg/
+wasm/target/
+
+# Local server cache
+.cache/
+
+# Video files (large, keep in separate storage)
+videos/
+
+# Demo audio files
+demos/
+
+# Generated files
+package-lock.json
+pnpm-lock.yaml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Nix
+/nix/
+result/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+*.bak
+*.tmp
