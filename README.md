@@ -156,6 +156,16 @@ file alongside the video if one is set (`soundtrack:` lines in `tracks.js`;
 its placeholder path `JUKEBOX_PLACEHOLDER_SOUNDTRACK` points at the main
 project's `demos/JukeboxDemo.wav`, which is not in this repository).
 
+## Documentation
+
+- [Project overview](docs/PROJECT_OVERVIEW.md) — purpose, repository roles and implementation status.
+- [Science and sonification](docs/SCIENCE_AND_SONIFICATION.md) — data sources, interpretation guidance and current audio status.
+- [NVDA screen-reader test script](NVDA-TEST.md) — manual accessibility test procedure.
+
+The audio engine and browser demonstration have their own technical documentation:
+- [Sonificator engine](https://github.com/neo-universe-2026/sonificator)
+- [Sonificator Studio](https://github.com/neo-universe-2026/sonificator-website)
+
 ## Credits
 
 Visualizations by NASA's Scientific Visualization Studio, from the Earth
